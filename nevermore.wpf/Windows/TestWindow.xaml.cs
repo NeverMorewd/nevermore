@@ -24,7 +24,7 @@ namespace nevermore.wpf
     /// </summary>
     public partial class TestWindow : Window,INotifyPropertyChanged
     {
-        readonly IProgress<float> Progress;
+        IProgress<float> Progress;
         private ObservableCollection<TaskItem> taskCollection;
         public ObservableCollection<TaskItem> TaskCollection
         {
@@ -46,28 +46,96 @@ namespace nevermore.wpf
             this.DataContext = this;
             Progress = new Progress<float>(ProgressHandler);
             Init();
-            Start();
+           Task.Run(async () => await StartMutiTask(TaskCollection)).ConfigureAwait(false);
         }
 
-        public TestWindow(List<string> uploadFiles)
+        public async Task StartMutiTask(ObservableCollection<TaskItem> aTasks)
         {
-            InitializeComponent();
-            this.DataContext = this;
             Progress = new Progress<float>(ProgressHandler);
 
-            Task[] tasks = new Task[10];
-            foreach (string fullFileName in uploadFiles)
+            List<Task> tasks = new List<Task>();
+            var progressingTasks =  aTasks.Select(async t =>
+             {
+                  t.TaskInstance = UpLoadFileAsync(t);
+                 await t.TaskInstance;
+            }).ToArray();
+
+            await Task.WhenAll(progressingTasks);
+        }
+        private async Task UpLoadFileAsync(TaskItem aTaskItem)
+        {
+            switch (aTaskItem.FileType)
             {
-                tasks.Append(Task.FromResult(fullFileName));
+                case FileTypeEnum.DOC:
+                    await Task.Run(async () =>
+                    {
+                        int percentComplete = 0;
+                        while (true)
+                        {
+                            await Task.Delay(100);
+                            percentComplete++;
+                            if (aTaskItem.Progress != null)
+                            {
+                                aTaskItem.Progress.Report(percentComplete);
+                            }
+                            if (percentComplete == 100)
+                                break;
+                        }
+                    });
+                    break;
+                case FileTypeEnum.PNG:
+                    await Task.Run(async () =>
+                    {
+                        int percentComplete = 0;
+                        while (true)
+                        {
+                            await Task.Delay(200);
+                            percentComplete++;
+                            if (aTaskItem.Progress != null)
+                            {
+                                aTaskItem.Progress.Report(percentComplete);
+                            }
+                            if (percentComplete == 100)
+                                break;
+                        }
+                    });
+                    break;
+                case FileTypeEnum.PDF:
+                    await Task.Run(async () =>
+                    {
+                        int percentComplete = 0;
+                        while (true)
+                        {
+                            await Task.Delay(300);
+                            percentComplete++;
+                            if (aTaskItem.Progress != null)
+                            {
+                                aTaskItem.Progress.Report(percentComplete);
+                            }
+                            if (percentComplete == 100)
+                                break;
+                        }
+                    });
+                    break;
+                case FileTypeEnum.MP3:
+                    await Task.Run(async () =>
+                    {
+                        int percentComplete = 0;
+                        while (true)
+                        {
+                            await Task.Delay(90);
+                            percentComplete++;
+                            if (aTaskItem.Progress != null)
+                            {
+                                aTaskItem.Progress.Report(percentComplete);
+                            }
+                            if (percentComplete == 100)
+                                break;
+                        }
+                    });
+                    break;
             }
 
-            Init();
-            Start();
-        }
-        private async Task UpLoadFileAsync(string aFileName)
-        {
-            var htttpClient = new HttpClient();
-            //htttpClient.PostAsync("", aFileName);
         }
         private void Init()
         {
@@ -76,8 +144,9 @@ namespace nevermore.wpf
                 new TaskItem
                 {
                      TaskId = new Random().Next(),
-                     TaskName = "证据文件-1.doc",
+                     TaskName = "证据文件-1.mp3",
                      TaskProgressRatio = 0,
+                     FileType = FileTypeEnum.MP3,
                      TaskStatus =  TaskStatusEnum.Ready,
                 },
                 new TaskItem
@@ -85,6 +154,7 @@ namespace nevermore.wpf
                      TaskId = new Random().Next(),
                      TaskName = "证据文件-2.doc",
                      TaskProgressRatio = 0,
+                     FileType = FileTypeEnum.DOC,
                      TaskStatus =  TaskStatusEnum.Ready,
                 },
                 new TaskItem
@@ -92,6 +162,7 @@ namespace nevermore.wpf
                      TaskId = new Random().Next(),
                      TaskName = "证据文件-3.doc",
                      TaskProgressRatio = 0,
+                     FileType = FileTypeEnum.DOC,
                      TaskStatus =  TaskStatusEnum.Ready,
                 },
                 new TaskItem
@@ -99,6 +170,7 @@ namespace nevermore.wpf
                      TaskId = new Random().Next(),
                      TaskName = "证据文件-4.doc",
                      TaskProgressRatio = 0,
+                     FileType = FileTypeEnum.DOC,
                      TaskStatus =  TaskStatusEnum.Ready,
                 },
                 new TaskItem
@@ -106,6 +178,7 @@ namespace nevermore.wpf
                      TaskId = new Random().Next(),
                      TaskName = "证据文件-5.doc",
                      TaskProgressRatio = 0,
+                     FileType = FileTypeEnum.DOC,
                      TaskStatus =  TaskStatusEnum.Ready,
                 },
                 new TaskItem
@@ -113,6 +186,7 @@ namespace nevermore.wpf
                      TaskId = new Random().Next(),
                      TaskName = "证据文件-6.doc",
                      TaskProgressRatio = 0,
+                     FileType = FileTypeEnum.DOC,
                      TaskStatus =  TaskStatusEnum.Ready,
                 },
                 new TaskItem
@@ -120,6 +194,7 @@ namespace nevermore.wpf
                      TaskId = new Random().Next(),
                      TaskName = "证据文件-7.doc",
                      TaskProgressRatio = 0,
+                     FileType = FileTypeEnum.DOC,
                      TaskStatus =  TaskStatusEnum.Ready,
                 },
                 new TaskItem
@@ -127,20 +202,23 @@ namespace nevermore.wpf
                      TaskId = new Random().Next(),
                      TaskName = "证据文件-8.doc",
                      TaskProgressRatio = 0,
+                     FileType = FileTypeEnum.DOC,
                      TaskStatus =  TaskStatusEnum.Ready,
                 },
                 new TaskItem
                 {
                      TaskId = new Random().Next(),
-                     TaskName = "证据文件-9.doc",
+                     TaskName = "证据文件-9.pdf",
                      TaskProgressRatio = 0,
+                     FileType = FileTypeEnum.PDF,
                      TaskStatus =  TaskStatusEnum.Ready,
                 },
                 new TaskItem
                 {
                      TaskId = new Random().Next(),
-                     TaskName = "证据文件-10.doc",
+                     TaskName = "证据文件-10.png",
                      TaskProgressRatio = 0,
+                     FileType = FileTypeEnum.PNG,
                      TaskStatus =  TaskStatusEnum.Ready,
                 },
             };
@@ -168,7 +246,7 @@ namespace nevermore.wpf
                 }
             }));
         }
-        public static async Task TaskAsync(IProgress<float> progress = null)
+        public async Task TaskAsync(IProgress<float> progress = null)
         {
             float percentComplete = 0;
             done = false;

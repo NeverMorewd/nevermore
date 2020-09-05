@@ -58,10 +58,28 @@ namespace nevermore.wpf.Controls
                 OnPropertyChanged();
             }
         }
+        public FileTypeEnum FileType { get; set; }
+        public Task TaskInstance { get; set; }
+
+        public IProgress<float> Progress
+        {
+            get
+            {
+                return new Progress<float>(ratio =>
+                {
+                    TaskProgressRatio = ratio;
+                });
+            }
+        }
         public event PropertyChangedEventHandler PropertyChanged;    
         protected virtual void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public TaskItem()
+        {
+
         }
     }
     public enum TaskStatusEnum
@@ -71,5 +89,14 @@ namespace nevermore.wpf.Controls
         Completed = 3,
         Error = 4,
         Cancel = 5,
+    }
+    public enum FileTypeEnum
+    {
+        DOC = 1,
+        PDF = 2,
+        PNG = 3,
+        JPG = 4,
+        MP3 = 5,
+        MP4 = 6,
     }
 }
