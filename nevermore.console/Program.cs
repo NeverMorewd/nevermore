@@ -1,15 +1,9 @@
-﻿using nevermore.utilities;
-using nevermore.utilities.office;
+﻿using nevermore.utilities.office;
 using nevermore.winform;
-using nevermore.wpf;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using Application_Winform =  System.Windows.Forms.Application;
+using Application_Winform = System.Windows.Forms.Application;
 using Application_WPF = System.Windows.Application;
 
 namespace nevermore.console

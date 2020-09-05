@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -36,7 +37,7 @@ namespace nevermore.mvvm.Command
             : base()
         {
             if (executeMethod == null || canExecuteMethod == null)
-                throw new ArgumentNullException(nameof(executeMethod), Resources.DelegateCommandDelegatesCannotBeNull);
+                throw new ArgumentNullException(nameof(executeMethod), "DelegateCommandDelegatesCannotBeNull");
 
             _executeMethod = executeMethod;
             _canExecuteMethod = canExecuteMethod;

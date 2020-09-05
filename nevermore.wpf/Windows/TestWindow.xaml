@@ -1,0 +1,20 @@
+﻿<Window x:Class="nevermore.wpf.TestWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:control ="clr-namespace:nevermore.wpf.Controls"
+        xmlns:local="clr-namespace:nevermore.wpf"
+        mc:Ignorable="d"
+        Title="TestWindow" Height="350" Width="600" Background="Transparent" AllowsTransparency="True" WindowStyle="None"  WindowStartupLocation="CenterScreen" ResizeMode="NoResize" WindowState="Normal">
+    <Grid Background="Transparent">
+        <Border Background="#2d5eda" CornerRadius="20" BorderThickness="0"/>
+        <ScrollViewer Style="{StaticResource ThunisoftScrollViewer}" Height="280" VerticalAlignment="Top" Margin="10,25,10,10" Width="550">
+            <control:TaskMonitorControl  ItemsSource="{Binding TaskCollection}" VerticalAlignment="Top"/>
+        </ScrollViewer>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center">
+            <Button VerticalAlignment="Bottom" Height="30" Width="100" Margin="5" Content="确定" Click="Button_Click" Cursor="Hand"/>
+            <Button VerticalAlignment="Bottom" Height="30" Width="100" Margin="5" Content="重置" Click="ResetButton_Click"  Cursor="Hand"/>
+        </StackPanel>
+    </Grid>
+</Window>

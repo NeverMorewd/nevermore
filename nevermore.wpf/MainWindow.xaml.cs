@@ -1,4 +1,5 @@
-﻿using System;
+﻿using nevermore.wpf.Windows;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -54,7 +55,7 @@ namespace nevermore.wpf
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ResultText"));
             }
         }
-public event PropertyChangedEventHandler PropertyChanged;
+       public event PropertyChangedEventHandler PropertyChanged;
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
@@ -66,22 +67,18 @@ public event PropertyChangedEventHandler PropertyChanged;
             {
                 ResultText = "NOK!";
             }
+            new TestWindow().Show();
 
         }
 
-        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void button_Copy_Click(object sender, RoutedEventArgs e)
         {
-
+            new TestWindow().Show();
         }
 
-        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        private void button_Click_1(object sender, RoutedEventArgs e)
         {
-
-        }
-
-        private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
-        {
-
+            new SecurityTestWindow().Show();
         }
     }
 }

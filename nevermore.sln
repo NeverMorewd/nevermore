@@ -5,17 +5,19 @@ VisualStudioVersion = 16.0.30309.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nevermore.winform", "nevermore.winform\nevermore.winform.csproj", "{283995ED-C237-4959-B103-BAD5428BB49E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nevermore.console", "nevermore.console\nevermore.console.csproj", "{67774BAE-A797-4A31-AB27-2E56D1E89A41}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nevermore.main", "nevermore.console\nevermore.main.csproj", "{67774BAE-A797-4A31-AB27-2E56D1E89A41}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nevermore.wpf", "nevermore.wpf\nevermore.wpf.csproj", "{73FDBC32-1FA5-46EF-9A48-490FE474AB5B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nevermore.utilities", "nevermore.utilities\nevermore.utilities.csproj", "{15B553CD-7305-408E-A532-D4650DA69564}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nevermore.mvvmlight", "nevermore.mvvmlight\nevermore.mvvmlight.csproj", "{B129271B-A580-47C6-A0FE-5B21AAB57E59}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nevermore.database", "nevermore.database\nevermore.database.csproj", "{8EF53867-230F-4B80-9E8C-B28E0079717A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nevermore.learn", "nevermore.utilities\nevermore.learn.csproj", "{15B553CD-7305-408E-A532-D4650DA69564}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nevermore.mvvm", "nevermore.mvvm\nevermore.mvvm.csproj", "{1F4CA8EE-3F24-4AE8-BB30-2FED20DFD608}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nevermore.common", "nevermore.common\nevermore.common.csproj", "{226D33FD-ACEE-4A24-BF51-8605EBDB7F33}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nevermore.service", "nevermore.service\nevermore.service.csproj", "{56E660FA-5884-48B0-B9B6-EBE68D314B03}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nevermore.core", "nevermore.core\nevermore.core.csproj", "{5A3BDA69-93DA-4290-8B3F-6CECA9F4FA4C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,18 +41,22 @@ Global
 		{15B553CD-7305-408E-A532-D4650DA69564}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{15B553CD-7305-408E-A532-D4650DA69564}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{15B553CD-7305-408E-A532-D4650DA69564}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B129271B-A580-47C6-A0FE-5B21AAB57E59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B129271B-A580-47C6-A0FE-5B21AAB57E59}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B129271B-A580-47C6-A0FE-5B21AAB57E59}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B129271B-A580-47C6-A0FE-5B21AAB57E59}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8EF53867-230F-4B80-9E8C-B28E0079717A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8EF53867-230F-4B80-9E8C-B28E0079717A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8EF53867-230F-4B80-9E8C-B28E0079717A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8EF53867-230F-4B80-9E8C-B28E0079717A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1F4CA8EE-3F24-4AE8-BB30-2FED20DFD608}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1F4CA8EE-3F24-4AE8-BB30-2FED20DFD608}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1F4CA8EE-3F24-4AE8-BB30-2FED20DFD608}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1F4CA8EE-3F24-4AE8-BB30-2FED20DFD608}.Release|Any CPU.Build.0 = Release|Any CPU
+		{226D33FD-ACEE-4A24-BF51-8605EBDB7F33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{226D33FD-ACEE-4A24-BF51-8605EBDB7F33}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{226D33FD-ACEE-4A24-BF51-8605EBDB7F33}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{226D33FD-ACEE-4A24-BF51-8605EBDB7F33}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56E660FA-5884-48B0-B9B6-EBE68D314B03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56E660FA-5884-48B0-B9B6-EBE68D314B03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56E660FA-5884-48B0-B9B6-EBE68D314B03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56E660FA-5884-48B0-B9B6-EBE68D314B03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A3BDA69-93DA-4290-8B3F-6CECA9F4FA4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A3BDA69-93DA-4290-8B3F-6CECA9F4FA4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A3BDA69-93DA-4290-8B3F-6CECA9F4FA4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A3BDA69-93DA-4290-8B3F-6CECA9F4FA4C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
