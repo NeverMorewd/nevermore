@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace nevermore.http
+namespace nevermore.console.CommandPattern
 {
-    public class Class1
+    public interface IOrder
     {
+        void Execute();
     }
 }

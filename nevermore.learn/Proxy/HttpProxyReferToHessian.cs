@@ -7,7 +7,7 @@ using System.Runtime.Remoting.Proxies;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace nevermore.dynamicproxy
+namespace nevermore.learn.Proxy
 {
     public class RealServiceProxy : RealProxy
     {
@@ -90,7 +90,7 @@ namespace nevermore.dynamicproxy
             {
                 objReturnValue = GetResult(response);
 
-                if (response!=null)
+                if (response != null)
                 {
                     if (objReturnValue != null)
                     {

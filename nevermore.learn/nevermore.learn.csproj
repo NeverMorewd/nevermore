@@ -129,19 +129,25 @@
   <ItemGroup>
     <Compile Include="async\AsyncFoundation.cs" />
     <Compile Include="DBHelper.cs" />
+    <Compile Include="DesignPattern\CommandPattern\Broker.cs" />
+    <Compile Include="DesignPattern\CommandPattern\BuyStock.cs" />
+    <Compile Include="DesignPattern\CommandPattern\IOrder.cs" />
+    <Compile Include="DesignPattern\CommandPattern\SellStock.cs" />
+    <Compile Include="DesignPattern\CommandPattern\Stock.cs" />
     <Compile Include="MEF\IBookService.cs" />
     <Compile Include="MEF\MEFTest.cs" />
     <Compile Include="MEF\MusicBook.cs" />
     <Compile Include="office\insertPicToDoc.cs" />
     <Compile Include="office\WordReplaceTagWord.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Proxy\HttpProxyReferToHessian.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="DesignPattern\" />
+    <Folder Include="DesignPattern\DynamicProxy\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -5,11 +5,11 @@ VisualStudioVersion = 16.0.30309.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nevermore.winform", "nevermore.winform\nevermore.winform.csproj", "{283995ED-C237-4959-B103-BAD5428BB49E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nevermore.main", "nevermore.console\nevermore.main.csproj", "{67774BAE-A797-4A31-AB27-2E56D1E89A41}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nevermore.main", "nevermore.main\nevermore.main.csproj", "{67774BAE-A797-4A31-AB27-2E56D1E89A41}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nevermore.wpf", "nevermore.wpf\nevermore.wpf.csproj", "{73FDBC32-1FA5-46EF-9A48-490FE474AB5B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nevermore.learn", "nevermore.utilities\nevermore.learn.csproj", "{15B553CD-7305-408E-A532-D4650DA69564}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nevermore.learn", "nevermore.learn\nevermore.learn.csproj", "{15B553CD-7305-408E-A532-D4650DA69564}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nevermore.mvvm", "nevermore.mvvm\nevermore.mvvm.csproj", "{1F4CA8EE-3F24-4AE8-BB30-2FED20DFD608}"
 EndProject
