@@ -56,6 +56,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Interface\ITaskMonitorContext.cs" />
     <Compile Include="Windows\TestWindow.xaml.cs">
       <DependentUpon>TestWindow.xaml</DependentUpon>
     </Compile>
@@ -122,6 +123,19 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Converters\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\nevermore.core\nevermore.core.csproj">
+      <Project>{5A3BDA69-93DA-4290-8B3F-6CECA9F4FA4C}</Project>
+      <Name>nevermore.core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\nevermore.mvvm\nevermore.mvvm.csproj">
+      <Project>{1f4ca8ee-3f24-4ae8-bb30-2fed20dfd608}</Project>
+      <Name>nevermore.mvvm</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\image\settingbackground.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

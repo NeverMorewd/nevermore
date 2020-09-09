@@ -4,17 +4,48 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:control ="clr-namespace:nevermore.wpf.Controls"
+         xmlns:controlInterface ="clr-namespace:nevermore.wpf.Interface"
         xmlns:local="clr-namespace:nevermore.wpf"
         mc:Ignorable="d"
-        Title="TestWindow" Height="350" Width="600" Background="Transparent" AllowsTransparency="True" WindowStyle="None"  WindowStartupLocation="CenterScreen" ResizeMode="NoResize" WindowState="Normal">
-    <Grid Background="Transparent">
-        <Border Background="#2d5eda" CornerRadius="20" BorderThickness="0"/>
-        <ScrollViewer Style="{StaticResource ThunisoftScrollViewer}" Height="280" VerticalAlignment="Top" Margin="10,25,10,10" Width="550">
-            <control:TaskMonitorControl  ItemsSource="{Binding TaskCollection}" VerticalAlignment="Top"/>
-        </ScrollViewer>
-        <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center">
-            <Button VerticalAlignment="Bottom" Height="30" Width="100" Margin="5" Content="确定" Click="Button_Click" Cursor="Hand"/>
-            <Button VerticalAlignment="Bottom" Height="30" Width="100" Margin="5" Content="重置" Click="ResetButton_Click"  Cursor="Hand"/>
+        Title="TestWindow" Height="600" Width="1000" Background="Transparent" AllowsTransparency="True" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowState="Normal">
+    <Grid>
+        <Image  Stretch="Fill" Source="../Resources/image/settingbackground.png" Width="1030" Height="630" Margin="0,0,-12,0" HorizontalAlignment="Center" VerticalAlignment="Center"></Image>
+        <!--<Border Background="#2d5eda" CornerRadius="0" BorderThickness="0" Grid.ColumnSpan="2"  Height="348"/>
+        <Border CornerRadius="0" BorderThickness="0" Height ="2" VerticalAlignment="Top" HorizontalAlignment="Center" Width="100" Grid.ColumnSpan="2" Margin="0,1,0,0">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Color="#2d5eda" Offset="0.0" />
+                    <GradientStop Color="#00ccff" Offset="0.25" />
+                    <GradientStop Color="#99ffff" Offset="0.5" />
+                    <GradientStop Color="#00ccff" Offset="0.75" />
+                    <GradientStop Color="#2d5eda" Offset="1.0" />
+                </LinearGradientBrush>
+            </Border.Background>
+            <Border.Effect>
+                <BlurEffect Radius="1" KernelType="Gaussian"  RenderingBias="Quality"/>
+            </Border.Effect>
+        </Border>
+        <Border  VerticalAlignment="Top" HorizontalAlignment="Center" Height="2" Width="30" CornerRadius="1" Grid.ColumnSpan="2" Margin="0,1,0,0">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Color="#66FFFFFF" Offset="0.25" />
+                    <GradientStop Color="#FFFFFF" Offset="0.5" />
+                    <GradientStop Color="#66FFFFFF" Offset="0.75" />
+                </LinearGradientBrush>
+            </Border.Background>
+            <Border.Effect>
+                <BlurEffect Radius="15" KernelType="Box"  RenderingBias="Quality"/>
+            </Border.Effect>
+        </Border>-->
+        <Button Width="30" Height="30" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,40,20,0" Style="{StaticResource CloseButtonStyle}" Click="Button_Click_1" Panel.ZIndex="2"/>
+        <Border Background="Transparent" Height="80" MouseMove="Border_MouseMove" VerticalAlignment="Top" Margin="0,15,0,0" Panel.ZIndex="1"></Border>
+        <Line Stroke="#385cdd" StrokeThickness="1" VerticalAlignment="Top" Margin="12,95,0,0" Panel.ZIndex="3" X1="1000"/>
+        <TextBlock Text="上传材料"  VerticalAlignment="Top" FontSize="25" Foreground="White" Margin="20,40,0,0"/>
+        <control:TaskMonitorControl  x:Name="TaskControl" TaskCollection="{Binding TaskCollection}"  Height="430" VerticalAlignment="Top" Margin="30,120,30,0"/>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center" Grid.ColumnSpan="2" Margin="0,0,0,5">
+            <Button VerticalAlignment="Bottom" Height="40" Width="120" Margin="5" Content="确定" Click="Button_Click" Cursor="Hand" FontSize="20" Style="{StaticResource TaskControlButton}"/>
+            <Button VerticalAlignment="Bottom" Height="40" Width="120" Margin="5" Content="重置" Click="ResetButton_Click"  Cursor="Hand" FontSize="20"  Style="{StaticResource TaskControlButton}"/>
+            <Button VerticalAlignment="Bottom" Height="40" Width="120" Margin="5" Content="取消" Click="CancelButton_Click"  Cursor="Hand" FontSize="20"  Style="{StaticResource TaskControlButton}"/>
         </StackPanel>
     </Grid>
 </Window>

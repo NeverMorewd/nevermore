@@ -1,0 +1,114 @@
+﻿<Window x:Class="CloudRoom.Home.Windows.SystemSettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CloudRoom.Home.Windows"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        mc:Ignorable="d"
+        xmlns:converters="clr-namespace:CloudRoom.Home.Converters"
+        WindowStyle="None" ResizeMode="NoResize"
+        AllowsTransparency="True" Background="Transparent"
+        Title="系统设置" Height="563" Width="1000" ShowInTaskbar="False">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary
+                    Source="../Style/Theme.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <converters:SettingItemEnumToBoolConverter x:Key="SettingItemEnumToBoolConverter"/>
+            <converters:BooleanToVisiblityConverter x:Key="BooleanToVisiblityConverter"/>
+        </ResourceDictionary>
+    </Window.Resources>
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadedCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Grid x:Name="Grid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="89"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Image Grid.RowSpan="2" Stretch="Fill" Source="../Assets/settingbackground.png" Width="1031" Height="600"  Margin="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center"></Image>
+        <Border BorderThickness="0,0,0,1" BorderBrush="#2B65D3" Grid.Row="0"  MouseMove="Border_MouseMove"></Border>
+            <TextBlock Text="设置"  Grid.Row="0" VerticalAlignment="Center" FontSize="25" Foreground="White" Margin="10,10,0,0"/>
+        <Border Visibility="{Binding PopVisibility}" Background="#9933ccff" Width="600"  Height="50" VerticalAlignment="Center" HorizontalAlignment="Center" CornerRadius="10" Margin="0,10,0,0">
+            <TextBlock Text="{Binding PopMessage}" FontSize="25" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="{Binding PopForegroud}">
+            </TextBlock>
+        </Border>
+        <Button Style="{StaticResource CloseButtonStyle}" HorizontalAlignment="Right"  Width="30" Height="30" Margin="0,10,10,0" Click="CloseButton_Click"/>
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="2.3*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Border BorderThickness="0,0,1,0" BorderBrush="#2B65D3" Background="#1926a6" Grid.Column="0"></Border>
+                <StackPanel Orientation="Vertical" Grid.Column="0">
+                    <RadioButton x:Name="Device" Content="设备设置" GroupName="MainMenu" IsChecked="{Binding SettingItem, Converter={StaticResource SettingItemEnumToBoolConverter}, ConverterParameter={x:Static local:SettingItemEnum.Device}, Mode=TwoWay}" Style="{StaticResource RadioButtonStyleSystemSettings}"/>
+                    <RadioButton x:Name="CollegiateBench" Content="麦克风设置" GroupName="MainMenu" IsChecked="{Binding SettingItem, Converter={StaticResource SettingItemEnumToBoolConverter}, ConverterParameter={x:Static local:SettingItemEnum.CollegiateBench}, Mode=TwoWay}" Style="{StaticResource RadioButtonStyleSystemSettings}"/>
+                </StackPanel>
+            <Canvas Grid.Column="1" Height="500" Visibility="{Binding IsChecked,ElementName=Device, Converter={StaticResource BooleanToVisiblityConverter}}">
+                <ScrollViewer Style="{StaticResource TouchScrollViewer}" VerticalScrollBarVisibility="Auto" Height="450" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal">
+                            <Image  Width="21" Height="30" Margin="20,10,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Source="../Assets/camera.png"/>
+                            <TextBlock  Text="摄像头设备" FontSize="20" VerticalAlignment="Center" Foreground="White" Margin="20,10,0,0"/>
+                        </StackPanel>
+                        <ListBox x:Name="ListBoxDeviceCamera" Margin="20,20,0,0"  Height="Auto" Width="630" FocusVisualStyle="{x:Null}" ItemsSource="{Binding DeviceCameraList,Mode=TwoWay}"  ItemTemplate="{StaticResource DeviceCameraTemplate}"  Background="Transparent"   BorderThickness="0"  SelectionMode="Single"  ScrollViewer.CanContentScroll="True" Style="{StaticResource DeviceListBoxStyle}">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Vertical" />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
+                        <StackPanel Orientation="Horizontal">
+                            <Image  Width="21" Height="30" Margin="20,10,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Source="../Assets/high_camera.png"/>
+                            <TextBlock  Text="高拍仪设备" FontSize="20" VerticalAlignment="Center" Foreground="White" Margin="20,10,0,0"/>
+                        </StackPanel>
+                        <ListBox x:Name="ListBoxDeviceGaopai" Margin="20,20,0,0"  Height="Auto" Width="630" FocusVisualStyle="{x:Null}" ItemsSource="{Binding DeviceCameraList,Mode=TwoWay}"  ItemTemplate="{StaticResource DeviceGaopaiTemplate}"  Background="Transparent"   BorderThickness="0"  SelectionMode="Single"  ScrollViewer.CanContentScroll="True" Style="{StaticResource DeviceListBoxStyle}">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Vertical" />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
+                        <StackPanel Orientation="Horizontal">
+                            <Image  Width="21" Height="30" Margin="20,10,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Source="../Assets/speakerIcon.png"/>
+                            <TextBlock  Text="扬声器" FontSize="20" VerticalAlignment="Center" Foreground="White" Margin="20,10,0,0"/>
+                        </StackPanel>
+                        <ListBox x:Name="ListBoxDeviceSpeaker" Margin="20,20,0,0"  Height="Auto" Width="630" FocusVisualStyle="{x:Null}" ItemsSource="{Binding DeviceSpeakerList,Mode=TwoWay}"  ItemTemplate="{StaticResource DeviceSpeakerTemplate}"  Background="Transparent"   BorderThickness="0"  SelectionMode="Single"  ScrollViewer.CanContentScroll="True" Style="{StaticResource DeviceListBoxStyle}">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Vertical" />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
+                        <StackPanel Orientation="Horizontal">
+                            <Image  Width="21" Height="30" Margin="20,10,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Source="../Assets/microphone.png"/>
+                            <TextBlock  Text="麦克风设备" FontSize="20" VerticalAlignment="Center" Foreground="White" Margin="20,10,0,0"/>
+                        </StackPanel>
+                        <ListBox x:Name="ListBoxDeviceMicrophone" Margin="20,20,0,0"  Height="Auto" Width="630" FocusVisualStyle="{x:Null}" ItemsSource="{Binding DeviceMicrophoneList,Mode=TwoWay}"  ItemTemplate="{StaticResource DeviceMicrophoneTemplate}"  Background="Transparent"   BorderThickness="0"  SelectionMode="Single"  ScrollViewer.CanContentScroll="True" Style="{StaticResource DeviceListBoxStyle}">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Vertical" />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </Canvas>
+                <Canvas Grid.Column="1" Visibility="{Binding IsChecked,ElementName=CollegiateBench, Converter={StaticResource BooleanToVisiblityConverter}}">
+                <ListBox x:Name="ListBoxMicrophone" Margin="60,30,0,0" Height="320" Width="630" FocusVisualStyle="{x:Null}" ItemsSource="{Binding MicrophoneList}"  ItemTemplate="{StaticResource MicrophoneItemTemplate}"  Background="Transparent"   BorderThickness="0"  SelectionMode="Single"  ScrollViewer.CanContentScroll="True" Style="{StaticResource MicrophoneListBoxStyle}">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical" />
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                </ListBox>
+                <Button x:Name="Save" FontSize="32"   Content="确定" Width="163" Height="60" Cursor="Hand" Style="{StaticResource BlueButtonStyle}" Margin="150,380,0,0" Command="{Binding SaveCommand}"></Button>
+                <Button x:Name="Cancel"   FontSize="32" Content="取消" Width="163" Height="60"  Cursor="Hand" Style="{StaticResource BlueButtonStyle}"  Margin="350,380,0,0" Command="{Binding CancelCommand}"></Button>
+            </Canvas>
+            </Grid>
+        </Grid>
+</Window>

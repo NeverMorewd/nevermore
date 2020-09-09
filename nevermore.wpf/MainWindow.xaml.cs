@@ -26,10 +26,12 @@ namespace nevermore.wpf
 
         private string pathText;
         private string resultText;
+        private Window Window;
         public MainWindow()
         {
             InitializeComponent();
             this.DataContext = this;
+            Window = new TestWindow();
         }
         public string PathText
         {
@@ -73,7 +75,7 @@ namespace nevermore.wpf
 
         private void button_Copy_Click(object sender, RoutedEventArgs e)
         {
-            new TestWindow().Show();
+            Window?.Show();
         }
 
         private void button_Click_1(object sender, RoutedEventArgs e)
