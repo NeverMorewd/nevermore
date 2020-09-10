@@ -120,9 +120,9 @@ namespace nevermore.wpf
 
         private void button_Monitor_Click(object sender, RoutedEventArgs e)
         {
-            if (!isTaskCompleted)
+            if (!testWindow.IsActive)
             {
-                testWindow?.Show();
+                testWindow.Show();
             }
         }
     }

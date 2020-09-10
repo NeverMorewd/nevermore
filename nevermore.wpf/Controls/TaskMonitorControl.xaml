@@ -1,15 +1,21 @@
-﻿<UserControl x:Class="nevermore.wpf.Controls.TaskMonitorControl"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:nevermore.wpf.Controls"
-             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <UserControl.Resources>
-    </UserControl.Resources>
-    <ListBox x:Name="TaskListBox"  ItemsSource="{Binding TaskCollection}"  SelectionMode="Single"  ScrollViewer.CanContentScroll="True" Style="{StaticResource TaskListBoxStyle}">
+﻿<UserControl
+    x:Class="nevermore.wpf.Controls.TaskMonitorControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+    xmlns:local="clr-namespace:nevermore.wpf.Controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+    <UserControl.Resources />
+    <ListBox
+        x:Name="TaskListBox"
+        ItemsSource="{Binding TaskCollection}"
+        ScrollViewer.CanContentScroll="True"
+        SelectionMode="Single"
+        Style="{StaticResource TaskListBoxStyle}">
         <ListBox.ItemsPanel>
             <ItemsPanelTemplate>
                 <StackPanel Orientation="Vertical" />
@@ -19,29 +25,103 @@
             <DataTemplate>
                 <Canvas Height="70">
                     <Canvas.Resources>
-                        <PathGeometry x:Key="path1" Figures="M 0,0 900,0"/>
+                        <PathGeometry x:Key="path1" Figures="M 0,0 900,0" />
                         <TimelineCollection x:Key="wave">
-                            <DoubleAnimation From="100" To="0" Duration="0:0:5" RepeatBehavior="Forever" BeginTime="0:0:0"/>
+                            <DoubleAnimation
+                                BeginTime="0:0:0"
+                                RepeatBehavior="Forever"
+                                From="100"
+                                To="0"
+                                Duration="0:0:5" />
                         </TimelineCollection>
                         <Style x:Key="DashStrokeStyle" TargetType="Path">
-                            <Setter Property="Panel.ZIndex" Value="3"/>
-                            <Setter Property="StrokeDashArray" Value="5,5"/>
-                            <Setter Property="StrokeDashOffset" Value="100"/>
-                            <Setter Property="StrokeThickness" Value="1"/>
-                            <Setter Property="Stroke" Value="#385cdd"/>
+                            <Setter Property="Panel.ZIndex" Value="3" />
+                            <Setter Property="StrokeDashArray" Value="5,5" />
+                            <Setter Property="StrokeDashOffset" Value="100" />
+                            <Setter Property="StrokeThickness" Value="1" />
+                            <Setter Property="Stroke" Value="#385cdd" />
                         </Style>
                     </Canvas.Resources>
-                    <TextBlock x:Name="TaskNameTextBlock" Text="{Binding TaskName}" Canvas.Left="0" Canvas.Top="17" Panel.ZIndex="2" TextTrimming="CharacterEllipsis" ToolTip="{Binding TaskName}" Width="300" Foreground="#FFFFFF" FontSize="20"/>
-                    <ProgressBar x:Name="TaskProgressBar"  Height="18" Width="900" Style="{StaticResource TaskProgressBarStyle2}" Canvas.Top="50" Panel.ZIndex="0" Value="{Binding TaskProgressRatio}"/>
-                    <Button x:Name="CancelButton" FontSize="15" Content="取消" Cursor="Hand" Canvas.Left="800" Width="100" Height="30" Style="{StaticResource TaskControlButton}" Panel.ZIndex="2" Canvas.Top="15" Command="{Binding CancelTaskCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" CommandParameter="{Binding DataContext, RelativeSource={RelativeSource  AncestorType=ListBoxItem}}"></Button>
-                    <Button x:Name="RetryButton" FontSize="15" Content="重新上传" Cursor="Hand"  Canvas.Left="800"  Width="100" Height="30" Style="{StaticResource TaskControlButton}" Panel.ZIndex="2" Canvas.Top="15" Visibility="Collapsed" Command="{Binding RetryTaskCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" CommandParameter="{Binding DataContext, RelativeSource={RelativeSource  AncestorType=ListBoxItem}}"></Button>
-                    <TextBlock x:Name="MessageTextBlock" TextTrimming="CharacterEllipsis" ToolTip="{Binding TaskMessage}"  Text="{Binding TaskMessage}"  Width="250" VerticalAlignment="Center" Canvas.Left="340" Canvas.Top="19" Panel.ZIndex="2" FontSize="15"/>
-                    <Control x:Name="ResultControl" Height="25" Width="25" Style="{StaticResource Ready}" Canvas.Left="310" Canvas.Top="17"/>
-                    <Path IsHitTestVisible="False" Panel.ZIndex="1" Margin="0"  VerticalAlignment="Center"  x:Name="path1" Data="{StaticResource path1}" Style="{StaticResource DashStrokeStyle}" Canvas.Top="70">
+                    <TextBlock
+                        x:Name="TaskNameTextBlock"
+                        Canvas.Left="0"
+                        Canvas.Top="17"
+                        Width="300"
+                        Panel.ZIndex="2"
+                        FontSize="20"
+                        Foreground="#FFFFFF"
+                        Text="{Binding TaskName}"
+                        TextTrimming="CharacterEllipsis"
+                        ToolTip="{Binding TaskName}" />
+                    <ProgressBar
+                        x:Name="TaskProgressBar"
+                        Canvas.Top="50"
+                        Width="900"
+                        Height="18"
+                        Panel.ZIndex="0"
+                        Style="{StaticResource TaskProgressBarStyle2}"
+                        Value="{Binding TaskProgressRatio}" />
+                    <Button
+                        x:Name="CancelButton"
+                        Canvas.Left="800"
+                        Canvas.Top="15"
+                        Width="100"
+                        Height="30"
+                        Panel.ZIndex="2"
+                        Command="{Binding CancelTaskCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                        CommandParameter="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ListBoxItem}}"
+                        Content="取消"
+                        Cursor="Hand"
+                        FontSize="15"
+                        Style="{StaticResource TaskControlButton}" />
+                    <Button
+                        x:Name="RetryButton"
+                        Canvas.Left="800"
+                        Canvas.Top="15"
+                        Width="100"
+                        Height="30"
+                        Panel.ZIndex="2"
+                        Command="{Binding RetryTaskCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                        CommandParameter="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ListBoxItem}}"
+                        Content="重新上传"
+                        Cursor="Hand"
+                        FontSize="15"
+                        Style="{StaticResource TaskControlButton}"
+                        Visibility="Collapsed" />
+                    <TextBlock
+                        x:Name="MessageTextBlock"
+                        Canvas.Left="340"
+                        Canvas.Top="19"
+                        Width="250"
+                        VerticalAlignment="Center"
+                        Panel.ZIndex="2"
+                        FontSize="15"
+                        Text="{Binding TaskMessage}"
+                        TextTrimming="CharacterEllipsis"
+                        ToolTip="{Binding TaskMessage}" />
+                    <Control
+                        x:Name="ResultControl"
+                        Canvas.Left="310"
+                        Canvas.Top="17"
+                        Width="25"
+                        Height="25"
+                        Style="{StaticResource Ready}" />
+                    <Path
+                        x:Name="path1"
+                        Canvas.Top="70"
+                        Margin="0"
+                        VerticalAlignment="Center"
+                        Panel.ZIndex="1"
+                        Data="{StaticResource path1}"
+                        IsHitTestVisible="False"
+                        Style="{StaticResource DashStrokeStyle}">
                         <Path.Triggers>
                             <EventTrigger RoutedEvent="Control.Loaded">
                                 <BeginStoryboard>
-                                    <Storyboard TargetName="path1" TargetProperty="StrokeDashOffset" Children="{StaticResource wave}"/>
+                                    <Storyboard
+                                        Children="{StaticResource wave}"
+                                        TargetProperty="StrokeDashOffset"
+                                        TargetName="path1" />
                                 </BeginStoryboard>
                             </EventTrigger>
                         </Path.Triggers>
@@ -49,72 +129,73 @@
                 </Canvas>
                 <DataTemplate.Triggers>
                     <DataTrigger Binding="{Binding TaskStatus}" Value="{x:Static local:TaskStatusEnum.Completed}">
-                        <Setter TargetName="CancelButton" Property="Visibility" Value="Collapsed"/>
-                        <Setter TargetName="RetryButton" Property="Visibility" Value="Collapsed"/>
-                        <Setter TargetName="TaskProgressBar" Property="Visibility" Value="Collapsed"/>
-                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Text" Value="完成"/>
-                        <Setter TargetName="MessageTextBlock" Property="TextBlock.ToolTip" Value="完成"/>
-                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Foreground" Value="#00ff99"/>
-                        <Setter TargetName="ResultControl" Property="Style" Value="{StaticResource Complete}"/>
-                        <Setter TargetName="ResultControl" Property="Canvas.Left" Value="800"/>
-                        <Setter TargetName="MessageTextBlock" Property="Canvas.Left" Value="830"/>
-                        <Setter TargetName="TaskNameTextBlock" Property="Width" Value="700"/>
+                        <Setter TargetName="CancelButton" Property="Visibility" Value="Collapsed" />
+                        <Setter TargetName="RetryButton" Property="Visibility" Value="Collapsed" />
+                        <Setter TargetName="TaskProgressBar" Property="Visibility" Value="Collapsed" />
+                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Text" Value="完成" />
+                        <Setter TargetName="MessageTextBlock" Property="TextBlock.ToolTip" Value="完成" />
+                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Foreground" Value="#00ff99" />
+                        <Setter TargetName="ResultControl" Property="Style" Value="{StaticResource Complete}" />
+                        <Setter TargetName="ResultControl" Property="Canvas.Left" Value="800" />
+                        <Setter TargetName="MessageTextBlock" Property="Canvas.Left" Value="830" />
+                        <Setter TargetName="TaskNameTextBlock" Property="Width" Value="700" />
                     </DataTrigger>
                     <DataTrigger Binding="{Binding TaskStatus}" Value="{x:Static local:TaskStatusEnum.Error}">
-                        <Setter TargetName="CancelButton" Property="Visibility" Value="Collapsed"/>
-                        <Setter TargetName="RetryButton" Property="Visibility" Value="Visible"/>
-                        <Setter TargetName="TaskProgressBar" Property="Visibility" Value="Visible"/>
-                        <Setter TargetName="TaskProgressBar" Property="Background" Value="#FA8072"/>
-                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Foreground" Value="#FA8072"/>
-                        <Setter TargetName="ResultControl" Property="Style" Value="{StaticResource Warning}"/>
+                        <Setter TargetName="CancelButton" Property="Visibility" Value="Collapsed" />
+                        <Setter TargetName="RetryButton" Property="Visibility" Value="Visible" />
+                        <Setter TargetName="TaskProgressBar" Property="Visibility" Value="Visible" />
+                        <Setter TargetName="TaskProgressBar" Property="Background" Value="#FA8072" />
+                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Foreground" Value="#FA8072" />
+                        <Setter TargetName="ResultControl" Property="Style" Value="{StaticResource Warning}" />
                     </DataTrigger>
                     <DataTrigger Binding="{Binding TaskStatus}" Value="{x:Static local:TaskStatusEnum.Cancel}">
-                        <Setter TargetName="CancelButton" Property="Visibility" Value="Collapsed"/>
-                        <Setter TargetName="RetryButton" Property="Visibility" Value="Visible"/>
-                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Text" Value="已取消"/>
-                        <Setter TargetName="MessageTextBlock" Property="TextBlock.ToolTip" Value="已取消"/>
-                        <Setter TargetName="TaskProgressBar" Property="Visibility" Value="Collapsed"/>
-                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Foreground" Value="#ffd104"/>
+                        <Setter TargetName="CancelButton" Property="Visibility" Value="Collapsed" />
+                        <Setter TargetName="RetryButton" Property="Visibility" Value="Visible" />
+                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Text" Value="已取消" />
+                        <Setter TargetName="MessageTextBlock" Property="TextBlock.ToolTip" Value="已取消" />
+                        <Setter TargetName="TaskProgressBar" Property="Visibility" Value="Collapsed" />
+                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Foreground" Value="#FA8072" />
+                        <Setter TargetName="ResultControl" Property="Style" Value="{StaticResource Cancel}" />
                     </DataTrigger>
                     <DataTrigger Binding="{Binding TaskStatus}" Value="{x:Static local:TaskStatusEnum.InProgress}">
-                        <Setter TargetName="CancelButton" Property="Visibility" Value="Visible"/>
-                        <Setter TargetName="RetryButton" Property="Visibility" Value="Collapsed"/>
-                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Text" Value="上传中..."/>
-                        <Setter TargetName="MessageTextBlock" Property="TextBlock.ToolTip" Value="上传中"/>
-                        <Setter TargetName="TaskProgressBar" Property="Visibility" Value="Visible"/>
-                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Foreground" Value="#00ff99"/>
-                        <Setter TargetName="ResultControl" Property="Style" Value="{StaticResource Uploading}"/>
+                        <Setter TargetName="CancelButton" Property="Visibility" Value="Visible" />
+                        <Setter TargetName="RetryButton" Property="Visibility" Value="Collapsed" />
+                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Text" Value="上传中..." />
+                        <Setter TargetName="MessageTextBlock" Property="TextBlock.ToolTip" Value="上传中" />
+                        <Setter TargetName="TaskProgressBar" Property="Visibility" Value="Visible" />
+                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Foreground" Value="#00ff99" />
+                        <Setter TargetName="ResultControl" Property="Style" Value="{StaticResource Uploading}" />
                     </DataTrigger>
                     <DataTrigger Binding="{Binding TaskStatus}" Value="{x:Static local:TaskStatusEnum.Ready}">
-                        <Setter TargetName="CancelButton" Property="Visibility" Value="Visible"/>
-                        <Setter TargetName="RetryButton" Property="Visibility" Value="Collapsed"/>
-                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Text" Value="等待上传..."/>
-                        <Setter TargetName="MessageTextBlock" Property="TextBlock.ToolTip" Value="等待上传"/>
-                        <Setter TargetName="TaskProgressBar" Property="Visibility" Value="Collapsed"/>
-                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Foreground" Value="#ffd104"/>
-                        <Setter TargetName="ResultControl" Property="Style" Value="{StaticResource Ready}"/>
+                        <Setter TargetName="CancelButton" Property="Visibility" Value="Visible" />
+                        <Setter TargetName="RetryButton" Property="Visibility" Value="Collapsed" />
+                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Text" Value="等待上传..." />
+                        <Setter TargetName="MessageTextBlock" Property="TextBlock.ToolTip" Value="等待上传" />
+                        <Setter TargetName="TaskProgressBar" Property="Visibility" Value="Collapsed" />
+                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Foreground" Value="#ffd104" />
+                        <Setter TargetName="ResultControl" Property="Style" Value="{StaticResource Ready}" />
                     </DataTrigger>
                     <DataTrigger Binding="{Binding TaskStatus}" Value="{x:Static local:TaskStatusEnum.Hangup}">
-                        <Setter TargetName="CancelButton" Property="Visibility" Value="Collapsed"/>
-                        <Setter TargetName="RetryButton" Property="Visibility" Value="Collapsed"/>
-                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Text" Value="等待上传..."/>
-                        <Setter TargetName="MessageTextBlock" Property="TextBlock.ToolTip" Value="等待上传"/>
-                        <Setter TargetName="TaskProgressBar" Property="Visibility" Value="Collapsed"/>
-                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Foreground" Value="#ffd104"/>
-                        <Setter TargetName="ResultControl" Property="Style" Value="{StaticResource Ready}"/>
+                        <Setter TargetName="CancelButton" Property="Visibility" Value="Collapsed" />
+                        <Setter TargetName="RetryButton" Property="Visibility" Value="Collapsed" />
+                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Text" Value="等待上传..." />
+                        <Setter TargetName="MessageTextBlock" Property="TextBlock.ToolTip" Value="等待上传" />
+                        <Setter TargetName="TaskProgressBar" Property="Visibility" Value="Collapsed" />
+                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Foreground" Value="#ffd104" />
+                        <Setter TargetName="ResultControl" Property="Style" Value="{StaticResource Ready}" />
                     </DataTrigger>
                     <DataTrigger Binding="{Binding TaskStatus}" Value="{x:Static local:TaskStatusEnum.OutOfControl}">
-                        <Setter TargetName="CancelButton" Property="Visibility" Value="Collapsed"/>
-                        <Setter TargetName="RetryButton" Property="Visibility" Value="Collapsed"/>
-                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Text" Value="正在获取上传结果"/>
-                        <Setter TargetName="MessageTextBlock" Property="TextBlock.ToolTip" Value="正在获取上传结果"/>
-                        <Setter TargetName="TaskProgressBar" Property="Visibility" Value="Visible"/>
-                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Foreground" Value="#00ff99"/>
-                        <Setter TargetName="ResultControl" Property="Style" Value="{StaticResource Uploading}"/>
+                        <Setter TargetName="CancelButton" Property="Visibility" Value="Collapsed" />
+                        <Setter TargetName="RetryButton" Property="Visibility" Value="Collapsed" />
+                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Text" Value="正在获取上传结果" />
+                        <Setter TargetName="MessageTextBlock" Property="TextBlock.ToolTip" Value="正在获取上传结果" />
+                        <Setter TargetName="TaskProgressBar" Property="Visibility" Value="Visible" />
+                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Foreground" Value="#00ff99" />
+                        <Setter TargetName="ResultControl" Property="Style" Value="{StaticResource Uploading}" />
                     </DataTrigger>
                 </DataTemplate.Triggers>
             </DataTemplate>
         </ListBox.ItemTemplate>
     </ListBox>
-    
+
 </UserControl>
