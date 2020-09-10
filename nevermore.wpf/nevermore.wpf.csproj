@@ -125,6 +125,10 @@
     <Folder Include="Converters\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\nevermore.common\nevermore.common.csproj">
+      <Project>{226D33FD-ACEE-4A24-BF51-8605EBDB7F33}</Project>
+      <Name>nevermore.common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\nevermore.core\nevermore.core.csproj">
       <Project>{5A3BDA69-93DA-4290-8B3F-6CECA9F4FA4C}</Project>
       <Name>nevermore.core</Name>

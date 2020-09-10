@@ -1,4 +1,7 @@
-﻿using nevermore.mvvm.Command;
+﻿using nevermore.common;
+using nevermore.core;
+using nevermore.core.Models;
+using nevermore.mvvm.Command;
 using nevermore.wpf.Controls;
 using nevermore.wpf.Interface;
 using System;
@@ -10,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,7 +33,7 @@ namespace nevermore.wpf
     /// <summary>
     /// TestWindow.xaml 的交互逻辑
     /// </summary>
-    public partial class TestWindow : Window, ITaskMonitorContext
+    public partial class TestWindow : Window, ITaskMonitorContext,IDisposable
     {
         private ObservableCollection<TaskItem<bool>> taskCollection;
         public ObservableCollection<TaskItem<bool>> TaskCollection
@@ -58,13 +62,12 @@ namespace nevermore.wpf
         {
             InitializeComponent();
             this.DataContext = this;
-            TaskExcuteHandler = UploadFile;
-            MaxTaskQuantity = 3;
+            //TaskExcuteHandler = UploadFile;
+            TaskExcuteHandler = UpLoadFileAsync;
+            MaxTaskQuantity = 1;
             CancelTaskCommand = new NMCommand<TaskItem<bool>>(OnCancelTask);
             RetryTaskCommand = new NMCommand<TaskItem<bool>>(OnRetryTask);
-            Init();
-            progressingTasks = InitTaskInstance(TaskCollection);
-            Task.Run(() => StartMutiTask(progressingTasks)).ConfigureAwait(false);
+
             //List<ObservableCollection<TaskItem<bool>>> collectionGroup = GroupByCount(TaskCollection, 3);
             //foreach (var collection in collectionGroup)
             //{
@@ -91,26 +94,60 @@ namespace nevermore.wpf
                 }
             }
         }
-
-        private async Task TaskEnumerbleExecutorByGroup(IEnumerator<Task> tasksSource,int aCount,int i = 1)
+        /// <summary>
+        /// 该分组并行方法有问题，如果每组最后一个任务率先完成，那下一组任务就会启动。
+        /// </summary>
+        /// <param name="tasksSource"></param>
+        /// <param name="aCount"></param>
+        /// <param name="i"></param>
+        /// <returns></returns>
+        private async Task TaskEnumerbleExecutorByGroupWrong(IEnumerator<Task> tasksSource,int aCount,int i = 1)
         {
-            List<Task> tasksGourp = new List<Task>();
             if (tasksSource.MoveNext())
             {
                 var currentTask = tasksSource.Current;
                 if (currentTask != null)
                 {
-                    if (i % aCount != 0)
+                    if (i% aCount != 0)
                     {
                         i++;
-                        //await Task.Run(async () => await currentTask);
-                        //await TaskEnumerbleExecutorByGroup(tasksSource, 3, i);
-                        await Task.WhenAll(currentTask, TaskEnumerbleExecutorByGroup(tasksSource, aCount, i));
+                        await Task.WhenAll(currentTask, TaskEnumerbleExecutorByGroupWrong(tasksSource, aCount, i)).ConfigureAwait(false);
                     }
                     else
                     {
                         i++;
-                        await currentTask.ContinueWith(async _ =>await TaskEnumerbleExecutorByGroup(tasksSource, aCount, i));
+                        //因为此处是用current.ContinueWith() 所以当一组内的最后一个任务完成时，下一组任务就会启动
+                        await currentTask.ContinueWith(async _ =>await TaskEnumerbleExecutorByGroupWrong(tasksSource, aCount, i));
+                    }
+                }
+            }
+        }
+        private async Task TaskEnumerbleExecutorByGroup(IEnumerator<Task> tasksSource, int aCount, int i = 1, List<Task> tasks = null)
+        {
+            if (tasksSource.MoveNext())
+            {
+                var currentTask = tasksSource.Current;
+                if (currentTask != null)
+                {
+                    if (tasks == null) tasks = new List<Task>();
+                    if (!(currentTask.Status == TaskStatus.Running || currentTask.Status == TaskStatus.RanToCompletion || currentTask.Status == TaskStatus.WaitingToRun))
+                    {
+                        tasks.Add(currentTask);
+                    }
+
+                    if (i % aCount != 0)
+                    {
+                        i++;
+                        await TaskEnumerbleExecutorByGroup(tasksSource, aCount, i, tasks);
+                    }
+                    else
+                    {
+                        i++;
+                        await Task.WhenAll(tasks).ContinueWith(async _ =>
+                        {
+                            tasks.Clear();
+                            await TaskEnumerbleExecutorByGroup(tasksSource, aCount, i, tasks);
+                        });
                     }
                 }
             }
@@ -130,18 +167,17 @@ namespace nevermore.wpf
         {
             await Task.Run(async()=> 
             {
-                while (TaskCollection.Where(x => x.TaskStatus == TaskStatusEnum.InProgress).Count() >= MaxTaskQuantity)
+                while (TaskCollection.Where(x => x.TaskStatus == TaskStatusEnum.InProgress).Count() >= 1)
                 {
                     obj.TaskStatus = TaskStatusEnum.Hangup;
                     await Task.Delay(1000);
                 }
             });
-
-            obj.TaskStatus = TaskStatusEnum.InProgress;
             if (!obj.TaskCancellationTokenSource.IsCancellationRequested)
             {
                 obj.TaskCancellationTokenSource.Cancel();
             }
+            obj.TaskStatus = TaskStatusEnum.InProgress;
             obj.TaskCancellationTokenSource = new CancellationTokenSource();
             obj.TaskInstance = TaskExcuteHandler.Invoke(obj, obj.TaskCancellationTokenSource.Token);
             await obj.TaskInstance.ConfigureAwait(false);
@@ -162,7 +198,7 @@ namespace nevermore.wpf
             var progressingTasks = aTasks.Select(async t =>
             {
                 t.TaskInstance = TaskExcuteHandler.Invoke(t,t.TaskCancellationTokenSource.Token);
-                await t.TaskInstance;
+                await t.TaskInstance.ConfigureAwait(false);
             });
             return progressingTasks;             
         }
@@ -175,7 +211,7 @@ namespace nevermore.wpf
             //按顺序执行
             // await Task.Run(() => TaskEnumerbleExecutor(aProgressingTasks.GetEnumerator()));
             //分组执行
-            Task.Run(() => TaskEnumerbleExecutorByGroup(aProgressingTasks.GetEnumerator(), MaxTaskQuantity));
+            Task.Run(async () =>await TaskEnumerbleExecutorByGroup(aProgressingTasks.GetEnumerator(), MaxTaskQuantity)).ConfigureAwait(false);
             //bool[] res = await Task.WhenAll(aProgressingTasks.ToArray()).ConfigureAwait(false);
             //ThreadPool.SetMinThreads(1, 1);
             //ThreadPool.SetMaxThreads(9, 9);
@@ -338,7 +374,7 @@ namespace nevermore.wpf
         //    }
 
         //}
-        private async Task<bool> UpLoadFileAsync(TaskItem<bool> aTaskItem,CancellationToken cancellationToken)
+        private async Task<bool> UpLoadFileAsync(TaskItem<bool> aTaskItem,CancellationToken cancellationToken,object para)
         {
             try
             {
@@ -362,9 +398,10 @@ namespace nevermore.wpf
                         {
                             aTaskItem.Progress.Report(percentComplete);
                         }
-                        if (aTaskItem.TaskProgressRatio == 66 && aTaskItem.FileType == FileTypeEnum.MP3)
+                        if (aTaskItem.TaskProgressRatio >= 95 && aTaskItem.FileType == FileTypeEnum.PDF)
                         {
-                            throw new Exception("文件被占用，请关闭文件后重试！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
+                            await Task.Delay(1000);
+                            //throw new Exception("文件被占用，请关闭文件后重试！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
                         }
                         if (percentComplete == 100)
                         {
@@ -390,102 +427,148 @@ namespace nevermore.wpf
             return false;
 
         }
-        private void Init()
+        public async Task RunTaskMonitor(List<string> filePaths, params object[] optionalParams)
         {
-            TaskCollection = new ObservableCollection<TaskItem<bool>>
+            TaskCollection = new ObservableCollection<TaskItem<bool>>();
+            filePaths.ForEach(x =>
             {
-                new TaskItem<bool>
+                TaskCollection?.Add(new TaskItem<bool>
                 {
-                     TaskId = new Random().Next(),
-                     TaskName = "WCF服务编程中文版.pdf",
-                     TaskProgressRatio = 0,
-                     FileType = FileTypeEnum.PDF,
-                     FilePath = @"F:\bak\WCF服务编程中文版.pdf",
-                     TaskStatus =  TaskStatusEnum.Ready,
-                },
-                new TaskItem<bool>
+                    TaskId = new Random().Next(),
+                    TaskName = System.IO.Path.GetFileName(x),
+                    TaskProgressRatio = 0,
+                    FileType = EnumExtender.GetEnum<FileTypeEnum>(System.IO.Path.GetExtension(x)),
+                    FilePath = x,
+                    TaskStatus = TaskStatusEnum.Ready,
+                });
+            });
+            progressingTasks = InitTaskInstance(TaskCollection);
+            await Task.Run(() => StartMutiTask(progressingTasks)).ConfigureAwait(false);
+            //TaskCollection = new ObservableCollection<TaskItem<bool>>
+            //{
+            //    new TaskItem<bool>
+            //    {
+            //         TaskId = new Random().Next(),
+            //         TaskName = "WCF服务编程中文版.pdf",
+            //         TaskProgressRatio = 0,
+            //         FileType = FileTypeEnum.PDF,
+            //         FilePath = @"F:\bak\WCF服务编程中文版.pdf",
+            //         TaskStatus =  TaskStatusEnum.Ready,
+            //    },
+            //    new TaskItem<bool>
+            //    {
+            //         TaskId = new Random().Next(),
+            //         TaskName = "811d754fa7e44a339bdcc856e54bd7a8.png",
+            //         FilePath = @"F:\bak\811d754fa7e44a339bdcc856e54bd7a8.png",
+            //         TaskProgressRatio = 0,
+            //         FileType = FileTypeEnum.PNG,
+            //         TaskStatus =  TaskStatusEnum.Ready,
+            //    },
+            //    new TaskItem<bool>
+            //    {
+            //         TaskId = new Random().Next(),
+            //         TaskName = "811d754fa7e44a339bdcc856e54bd7a8.png",
+            //         FilePath = @"F:\bak\811d754fa7e44a339bdcc856e54bd7a8.png",
+            //         TaskProgressRatio = 0,
+            //         FileType = FileTypeEnum.PNG,
+            //         TaskStatus =  TaskStatusEnum.Ready,
+            //    },
+            //    new TaskItem<bool>
+            //    {
+            //         TaskId = new Random().Next(),
+            //         TaskName = "811d754fa7e44a339bdcc856e54bd7a8.png",
+            //         FilePath = @"F:\bak\811d754fa7e44a339bdcc856e54bd7a8.png",
+            //         TaskProgressRatio = 0,
+            //         FileType = FileTypeEnum.PNG,
+            //         TaskStatus =  TaskStatusEnum.Ready,
+            //    },
+            //    new TaskItem<bool>
+            //    {
+            //         TaskId = new Random().Next(),
+            //         TaskName = "811d754fa7e44a339bdcc856e54bd7a8.png",
+            //         FilePath = @"F:\bak\811d754fa7e44a339bdcc856e54bd7a8.png",
+            //         TaskProgressRatio = 0,
+            //         FileType = FileTypeEnum.PNG,
+            //         TaskStatus =  TaskStatusEnum.Ready,
+            //    },
+            //    new TaskItem<bool>
+            //    {
+            //         TaskId = new Random().Next(),
+            //         TaskName = "811d754fa7e44a339bdcc856e54bd7a8.png",
+            //         FilePath = @"F:\bak\811d754fa7e44a339bdcc856e54bd7a8.png",
+            //         TaskProgressRatio = 0,
+            //         FileType = FileTypeEnum.PNG,
+            //         TaskStatus =  TaskStatusEnum.Ready,
+            //    },
+            //    new TaskItem<bool>
+            //    {
+            //         TaskId = new Random().Next(),
+            //         TaskName = "811d754fa7e44a339bdcc856e54bd7a8.png",
+            //         FilePath = @"F:\bak\811d754fa7e44a339bdcc856e54bd7a8.png",
+            //         TaskProgressRatio = 0,
+            //         FileType = FileTypeEnum.PNG,
+            //         TaskStatus =  TaskStatusEnum.Ready,
+            //    },
+            //    new TaskItem<bool>
+            //    {
+            //         TaskId = new Random().Next(),
+            //         TaskName = "WCF服务编程中文版.pdf",
+            //         FilePath = @"F:\bak\WCF服务编程中文版.pdf",
+            //         TaskProgressRatio = 0,
+            //         FileType = FileTypeEnum.PNG,
+            //         TaskStatus =  TaskStatusEnum.Ready,
+            //    },
+            //    new TaskItem<bool>
+            //    {
+            //         TaskId = new Random().Next(),
+            //         TaskName = "811d754fa7e44a339bdcc856e54bd7a8.png",
+            //         FilePath = @"F:\bak\811d754fa7e44a339bdcc856e54bd7a8.png",
+            //         TaskProgressRatio = 0,
+            //         FileType = FileTypeEnum.PNG,
+            //         TaskStatus =  TaskStatusEnum.Ready,
+            //    },
+            //    new TaskItem<bool>
+            //    {
+            //         TaskId = new Random().Next(),
+            //         TaskName = "811d754fa7e44a339bdcc856e54bd7a8.png",
+            //         FilePath = @"F:\bak\811d754fa7e44a339bdcc856e54bd7a8.png",
+            //         TaskProgressRatio = 0,
+            //         FileType = FileTypeEnum.PNG,
+            //         TaskStatus =  TaskStatusEnum.Ready,
+            //    },
+            //};
+            //info = new { url = @"http://172.18.19.101:8888/testimony/api/v1/files"};
+        }
+        public  string GetEnumDescription(Enum enumValue)
+        {
+            string value = enumValue.ToString();
+            FieldInfo field = enumValue.GetType().GetField(value);
+            object[] objs = field.GetCustomAttributes(typeof(DescriptionAttribute), false);    //获取描述属性
+            if (objs.Length == 0)    //当描述属性没有时，直接返回名称
+                return value;
+            DescriptionAttribute descriptionAttribute = (DescriptionAttribute)objs[0];
+            return descriptionAttribute.Description;
+        }
+        public Enum GetEnumDescription(string anEnumString,Type t)
+        {
+            FieldInfo[] fieldInfos = t.GetFields();
+            FieldInfo field = fieldInfos.FirstOrDefault(e =>
+            {
+                object[] objs = e.GetCustomAttributes(typeof(DescriptionAttribute), false);
+                if (objs.Length != 0)
                 {
-                     TaskId = new Random().Next(),
-                     TaskName = "811d754fa7e44a339bdcc856e54bd7a8.png",
-                     FilePath = @"F:\bak\811d754fa7e44a339bdcc856e54bd7a8.png",
-                     TaskProgressRatio = 0,
-                     FileType = FileTypeEnum.PNG,
-                     TaskStatus =  TaskStatusEnum.Ready,
-                },
-                new TaskItem<bool>
-                {
-                     TaskId = new Random().Next(),
-                     TaskName = "811d754fa7e44a339bdcc856e54bd7a8.png",
-                     FilePath = @"F:\bak\811d754fa7e44a339bdcc856e54bd7a8.png",
-                     TaskProgressRatio = 0,
-                     FileType = FileTypeEnum.PNG,
-                     TaskStatus =  TaskStatusEnum.Ready,
-                },
-                new TaskItem<bool>
-                {
-                     TaskId = new Random().Next(),
-                     TaskName = "811d754fa7e44a339bdcc856e54bd7a8.png",
-                     FilePath = @"F:\bak\811d754fa7e44a339bdcc856e54bd7a8.png",
-                     TaskProgressRatio = 0,
-                     FileType = FileTypeEnum.PNG,
-                     TaskStatus =  TaskStatusEnum.Ready,
-                },
-                new TaskItem<bool>
-                {
-                     TaskId = new Random().Next(),
-                     TaskName = "811d754fa7e44a339bdcc856e54bd7a8.png",
-                     FilePath = @"F:\bak\811d754fa7e44a339bdcc856e54bd7a8.png",
-                     TaskProgressRatio = 0,
-                     FileType = FileTypeEnum.PNG,
-                     TaskStatus =  TaskStatusEnum.Ready,
-                },
-                new TaskItem<bool>
-                {
-                     TaskId = new Random().Next(),
-                     TaskName = "811d754fa7e44a339bdcc856e54bd7a8.png",
-                     FilePath = @"F:\bak\811d754fa7e44a339bdcc856e54bd7a8.png",
-                     TaskProgressRatio = 0,
-                     FileType = FileTypeEnum.PNG,
-                     TaskStatus =  TaskStatusEnum.Ready,
-                },
-                new TaskItem<bool>
-                {
-                     TaskId = new Random().Next(),
-                     TaskName = "811d754fa7e44a339bdcc856e54bd7a8.png",
-                     FilePath = @"F:\bak\811d754fa7e44a339bdcc856e54bd7a8.png",
-                     TaskProgressRatio = 0,
-                     FileType = FileTypeEnum.PNG,
-                     TaskStatus =  TaskStatusEnum.Ready,
-                },
-                new TaskItem<bool>
-                {
-                     TaskId = new Random().Next(),
-                     TaskName = "WCF服务编程中文版.pdf",
-                     FilePath = @"F:\bak\WCF服务编程中文版.pdf",
-                     TaskProgressRatio = 0,
-                     FileType = FileTypeEnum.PNG,
-                     TaskStatus =  TaskStatusEnum.Ready,
-                },
-                new TaskItem<bool>
-                {
-                     TaskId = new Random().Next(),
-                     TaskName = "811d754fa7e44a339bdcc856e54bd7a8.png",
-                     FilePath = @"F:\bak\811d754fa7e44a339bdcc856e54bd7a8.png",
-                     TaskProgressRatio = 0,
-                     FileType = FileTypeEnum.PNG,
-                     TaskStatus =  TaskStatusEnum.Ready,
-                },
-                new TaskItem<bool>
-                {
-                     TaskId = new Random().Next(),
-                     TaskName = "811d754fa7e44a339bdcc856e54bd7a8.png",
-                     FilePath = @"F:\bak\811d754fa7e44a339bdcc856e54bd7a8.png",
-                     TaskProgressRatio = 0,
-                     FileType = FileTypeEnum.PNG,
-                     TaskStatus =  TaskStatusEnum.Ready,
-                },
-            };
-            info = new { url = @"http://172.18.19.101:8888/testimony/api/v1/files"};
+                    if (objs.FirstOrDefault(d => d.Equals(anEnumString)) != null)
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            });
+            if (field != null)
+            {
+                return field.GetValue(null) as Enum;
+            }
+            return null;
         }
         private  void ReSetAll()
         {
@@ -502,14 +585,14 @@ namespace nevermore.wpf
             //TaskCollection.ToList().ForEach(x => x.TaskStatus = TaskStatusEnum.Cancel) ;
         }
 
-        private async Task<bool> UploadFile(TaskItem<bool> aTaskItem, CancellationToken cancellationToken, dynamic info)
+        private async Task<bool> UploadFileBak(TaskItem<bool> aTaskItem, CancellationToken cancellationToken, dynamic info)
         {
             float percentComplete = 0;
             aTaskItem.Progress?.Report(percentComplete);
             aTaskItem.TaskStatus = TaskStatusEnum.InProgress;
-            //await Task.Run(() => 
+            //await Task.Run(() =>
             //{
-            //    while(true)
+            //    while (true)
             //    {
             //        if (cancellationToken.IsCancellationRequested)
             //        {
@@ -524,7 +607,7 @@ namespace nevermore.wpf
             string timeStamp = DateTime.Now.Ticks.ToString("x");
 
             //根据uri创建HttpWebRequest对象  
-            string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1OTk2ODY1NTEsInVzZXJfbmFtZSI6ImZtVFAwMnRNSkJhQVh5S3kzR1FCWUE9PSIsImp0aSI6IjY0YjBiOTkwLTYxNjgtNDA4My05ODI1LTc0NmIzNDk1ZmUzMiIsImNsaWVudF9pZCI6InByaXZhdGVfY2xpZW50X3dpbmRvd3MiLCJzY29wZSI6WyJzY29wZV9jb3JlIl19.GOcwNv2Hb7e6wS0WROzLRGaJOK07uKwxMJhK5tJnXWQ";
+            string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1OTk3NDQ5MzAsInVzZXJfbmFtZSI6ImZtVFAwMnRNSkJhQVh5S3kzR1FCWUE9PSIsImp0aSI6ImZmNDM2NjEwLTQ4NzctNGIwNi04YTFhLWI1OGFkZjZkOTJiNSIsImNsaWVudF9pZCI6InByaXZhdGVfY2xpZW50X3dpbmRvd3MiLCJzY29wZSI6WyJzY29wZV9jb3JlIl19.8QI3tMv8fMq3jztAmQkZocW-Hpw_5LHN5TnFwzAdX34";
             HttpWebRequest httpReq = (HttpWebRequest)WebRequest.Create(new Uri(@"http://172.18.19.101:8888/testimony/api/v1/files"));
             httpReq.Method = "POST";
             httpReq.Headers.Add("Authorization", $"Bearer {token}");
@@ -722,6 +805,240 @@ namespace nevermore.wpf
             return false;
         }
 
+        private async Task<bool> UploadFile(TaskItem<bool> aTaskItem, CancellationToken cancellationToken, dynamic info)
+        {
+            float percentComplete = 0;
+            aTaskItem.Progress?.Report(percentComplete);
+            aTaskItem.TaskStatus = TaskStatusEnum.InProgress;
+            // 时间戳，用做boundary  
+            string timeStamp = DateTime.Now.Ticks.ToString("x");
+
+            //根据uri创建HttpWebRequest对象  
+            string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1OTk3NDQ5MzAsInVzZXJfbmFtZSI6ImZtVFAwMnRNSkJhQVh5S3kzR1FCWUE9PSIsImp0aSI6ImZmNDM2NjEwLTQ4NzctNGIwNi04YTFhLWI1OGFkZjZkOTJiNSIsImNsaWVudF9pZCI6InByaXZhdGVfY2xpZW50X3dpbmRvd3MiLCJzY29wZSI6WyJzY29wZV9jb3JlIl19.8QI3tMv8fMq3jztAmQkZocW-Hpw_5LHN5TnFwzAdX34";
+            HttpWebRequest httpReq = (HttpWebRequest)WebRequest.Create(new Uri(@"http://172.18.19.101:8888/testimony/api/v1/files"));
+            httpReq.Method = "POST";
+            httpReq.Headers.Add("Authorization", $"Bearer {token}");
+            httpReq.AllowWriteStreamBuffering = false; //对发送的数据不使用缓存  
+            httpReq.Timeout = 1800000; //设置获得响应的超时时间（30分钟）  
+
+            httpReq.ContentType = "multipart/form-data; boundary=" + timeStamp;
+            httpReq.KeepAlive = false;
+            httpReq.ServicePoint.Expect100Continue = false;
+            try
+            {
+                //文件  
+                using (FileStream fileStream = new FileStream(aTaskItem.FilePath, FileMode.Open, FileAccess.Read))
+                {
+                    using (BinaryReader binaryReader = new BinaryReader(fileStream))
+                    {
+                        //头信息  
+                        string boundary = timeStamp;
+                        string startBoundary = "--" + timeStamp;
+                        string dataFormat = "\r\n" + startBoundary +
+                                            "\r\nContent-Disposition: form-data; name=\"{0}\";filename=\"{1}\" \r\nContent-Type:application/octet-stream\r\n\r\n";
+
+                        string header = string.Format(dataFormat, "fileName", aTaskItem.TaskName);
+
+                        byte[] postHeaderBytes = Encoding.UTF8.GetBytes(header);
+
+                        //------------------------------[form-data Start]----------------------------
+                        string reqFormat = startBoundary + "\r\nContent-Type:text/plain;charset=UTF-8" +
+                                                "\r\nContent-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}\r\n";
+                        string req = string.Format(reqFormat, "name", aTaskItem.TaskName);
+                        byte[] reqBytes = Encoding.UTF8.GetBytes(req);
+
+                        //结束边界  
+                        byte[] boundaryBytes = Encoding.ASCII.GetBytes("\r\n--" + timeStamp + "--\r\n");
+                        //------------------------------[form-data End]----------------------------
+
+                        byte[] reqBytes1;
+                        //------------------------------[form-data Start]----------------------------
+                        reqFormat = startBoundary + "\r\nContent-Type:text/plain;charset=UTF-8" +
+                                        "\r\nContent-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}\r\n";
+                        req = string.Format(reqFormat, "reserveId", "dfe64873568a4894b7efab5902ebca80");
+                        reqBytes1 = Encoding.UTF8.GetBytes(req);
+                        //------------------------------[form-data End]----------------------------
+
+                        //------------------------------[form-data Start]----------------------------
+                        reqFormat = startBoundary + "\r\nContent-Type:text/plain;charset=UTF-8" +
+                                        "\r\nContent-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}\r\n";
+                        req = string.Format(reqFormat, "participantId", "edc423566078463fadb22b752a4948b0");
+                        byte[] reqBytes2 = Encoding.UTF8.GetBytes(req);
+                        //------------------------------[form-data End]----------------------------
+
+                        //------------------------------[form-data Start]----------------------------
+                        reqFormat = startBoundary + "\r\nContent-Type:text/plain;charset=UTF-8" +
+                                        "\r\nContent-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}\r\n";
+                        req = string.Format(reqFormat, "suffix", System.IO.Path.GetExtension(aTaskItem.FilePath).TrimStart('.'));
+                        byte[] reqBytes3 = Encoding.UTF8.GetBytes(req);
+                        //------------------------------[form-data End]----------------------------
+
+                        //------------------------------[form-data Start]----------------------------
+                        reqFormat = startBoundary + "\r\nContent-Type:text/plain;charset=UTF-8" +
+                                        "\r\nContent-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}\r\n";
+                        req = string.Format(reqFormat, "ascription", 2);
+                        byte[] reqBytes4 = Encoding.UTF8.GetBytes(req);
+                        //------------------------------[form-data End]----------------------------
+
+                        //------------------------------[form-data Start]----------------------------
+                        reqFormat = startBoundary + "\r\nContent-Type:text/plain;charset=UTF-8" +
+                                        "\r\nContent-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}\r\n";
+                        req = string.Format(reqFormat, "uploadFileId", aTaskItem.TaskId);
+                        byte[] reqBytes5 = Encoding.UTF8.GetBytes(req);
+                        //------------------------------[form-data End]----------------------------
+
+                        //------------------------------[form-data Start]----------------------------
+                        reqFormat = startBoundary + "\r\nContent-Type:text/plain;charset=UTF-8" +
+                                        "\r\nContent-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}\r\n";
+                        req = string.Format(reqFormat, "source", 1);
+                        byte[] reqBytes6 = Encoding.UTF8.GetBytes(req);
+                        //------------------------------[form-data End]----------------------------
+                        //------------------------------[form-data Start]----------------------------
+                        reqFormat = startBoundary + "\r\nContent-Type:text/plain;charset=UTF-8" +
+                                        "\r\nContent-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}\r\n";
+                        req = string.Format(reqFormat, "ajbh", "6ba1f69eab24493691562419ccc8b8b5");
+                        byte[] reqBytes7 = Encoding.UTF8.GetBytes(req);
+                        //------------------------------[form-data End]----------------------------
+                        //------------------------------[form-data Start]----------------------------
+                        reqFormat = startBoundary + "\r\nContent-Type:text/plain;charset=UTF-8" +
+                                        "\r\nContent-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}\r\n";
+                        req = string.Format(reqFormat, "uploader", "刘子为");
+                        byte[] reqBytes8 = Encoding.UTF8.GetBytes(req);
+                        //------------------------------[form-data End]----------------------------
+                        //------------------------------[form-data Start]----------------------------
+                        reqFormat = startBoundary + "\r\nContent-Type:text/plain;charset=UTF-8" +
+                                        "\r\nContent-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}\r\n";
+                        req = string.Format(reqFormat, "jbfy", "");
+                        byte[] reqBytes9 = Encoding.UTF8.GetBytes(req);
+                        //------------------------------[form-data End]----------------------------                
+                        //------------------------------[form-data Start]----------------------------
+                        reqFormat = startBoundary + "\r\nContent-Type:text/plain;charset=UTF-8" +
+                                        "\r\nContent-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}";
+                        req = string.Format(reqFormat, "reservepattern", 2);
+                        byte[] reqBytes10 = Encoding.UTF8.GetBytes(req);
+                        //------------------------------[form-data End]----------------------------
+
+                        long length = fileStream.Length + postHeaderBytes.Length + boundaryBytes.Length + reqBytes.Length
+                                            + reqBytes1.Length + reqBytes2.Length + reqBytes3.Length + reqBytes4.Length +
+                                            reqBytes5.Length + reqBytes6.Length + reqBytes7.Length + reqBytes8.Length
+                                            + reqBytes9.Length + reqBytes10.Length;
+
+
+                        httpReq.ContentLength = length; //请求内容长度              
+
+                        //每次上传8k  
+                        int bufferLength = 8192;
+                        byte[] buffer = new byte[bufferLength];
+
+                        int size = binaryReader.Read(buffer, 0, bufferLength);
+                        Stream postStream = httpReq.GetRequestStream();
+
+                        //发送请求头部消息                  
+                        postStream.Write(reqBytes, 0, reqBytes.Length);
+                        postStream.Write(reqBytes1, 0, reqBytes1.Length);
+                        postStream.Write(reqBytes2, 0, reqBytes2.Length);
+                        postStream.Write(reqBytes3, 0, reqBytes3.Length);
+                        postStream.Write(reqBytes4, 0, reqBytes4.Length);
+                        postStream.Write(reqBytes5, 0, reqBytes5.Length);
+                        postStream.Write(reqBytes6, 0, reqBytes6.Length);
+                        postStream.Write(reqBytes7, 0, reqBytes7.Length);
+                        postStream.Write(reqBytes8, 0, reqBytes8.Length);
+                        postStream.Write(reqBytes9, 0, reqBytes9.Length);
+                        postStream.Write(reqBytes10, 0, reqBytes10.Length);
+                        postStream.Write(postHeaderBytes, 0, postHeaderBytes.Length);
+                        percentComplete += 10;
+                        aTaskItem.Progress?.Report(percentComplete);
+                        //await Task.Run(async () =>
+                        //{
+                        float re = 0;
+                        while (size > 0)
+                        {
+                            postStream.Write(buffer, 0, size);
+                            //info.nowBytes += size;
+                            re += ((float)bufferLength) / ((float)length);
+                            percentComplete = float.Parse(re.ToString("0.0")) * 70;
+                            aTaskItem.Progress?.Report(percentComplete + 10);
+                            size = binaryReader.Read(buffer, 0, bufferLength);
+                            if (re.ToString("0.0") == "0.1" || re.ToString("0.0") == "0.5")
+                            {
+                                if (cancellationToken.IsCancellationRequested)
+                                {
+                                    aTaskItem.TaskStatus = TaskStatusEnum.Cancel;
+                                    return false;
+                                }
+                                await Task.Delay(TimeSpan.FromMilliseconds(1), cancellationToken).ConfigureAwait(false);
+                            }
+                        }
+                        //});
+
+                        //添加尾部边界
+                        postStream.Write(boundaryBytes, 0, boundaryBytes.Length);
+                        postStream.Close();
+                        percentComplete += 10;
+                        aTaskItem.Progress?.Report(percentComplete);
+                    }
+                }
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    aTaskItem.TaskStatus = TaskStatusEnum.Cancel;
+                    return false;
+                }
+                percentComplete = 90;
+                aTaskItem.Progress?.Report(percentComplete);
+                aTaskItem.TaskStatus = TaskStatusEnum.OutOfControl;
+                //获取服务器端的响应  
+                using (HttpWebResponse response = (HttpWebResponse)await httpReq.GetResponseAsync())
+                {
+                    using (Stream receiveStream = response.GetResponseStream())
+                    {
+                        using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
+                        {
+                            string returnValue = readStream.ReadToEnd();
+                            if (string.IsNullOrEmpty(returnValue))
+                            {
+                                //percentComplete = 99;
+                                //aTaskItem.Progress?.Report(percentComplete);
+                                aTaskItem.TaskStatus = TaskStatusEnum.Error;
+                                aTaskItem.TaskMessage = $"上传接口异常";
+                                return false;
+                            }
+                            else
+                            {
+                                JsonHttpReturnBase json = JsonHelper.ConvertFromJsonToObject<JsonHttpReturnBase>(returnValue);
+                                if (json.Code != 200)
+                                {
+                                    //percentComplete = 99;
+                                    //aTaskItem.Progress?.Report(percentComplete);
+                                    aTaskItem.TaskStatus = TaskStatusEnum.Error;
+                                    aTaskItem.TaskMessage = $"上传接口异常  {json.Code}  {json.Msg}";
+                                    return false;
+                                }
+                                else
+                                {
+                                    percentComplete = 100;
+                                    aTaskItem.Progress?.Report(percentComplete);
+                                    aTaskItem.TaskStatus = TaskStatusEnum.Completed;
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    //ignore
+                }
+                else
+                {
+                    aTaskItem.TaskStatus = TaskStatusEnum.Error;
+                    aTaskItem.TaskMessage = ex.Message;
+                }
+            }
+            return false;
+        }
         protected virtual void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -753,5 +1070,11 @@ namespace nevermore.wpf
                 this.DragMove();
             }
         }
+
+        public void Dispose()
+        {
+            //this.Close();
+        }
+        
     }
 }

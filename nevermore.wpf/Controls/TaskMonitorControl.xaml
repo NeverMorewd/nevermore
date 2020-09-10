@@ -31,7 +31,7 @@
                             <Setter Property="Stroke" Value="#385cdd"/>
                         </Style>
                     </Canvas.Resources>
-                    <TextBlock Text="{Binding TaskName}" Canvas.Left="0" Canvas.Top="17" Panel.ZIndex="2" TextTrimming="CharacterEllipsis" ToolTip="{Binding TaskName}" Width="300" Foreground="#FFFFFF" FontSize="20"/>
+                    <TextBlock x:Name="TaskNameTextBlock" Text="{Binding TaskName}" Canvas.Left="0" Canvas.Top="17" Panel.ZIndex="2" TextTrimming="CharacterEllipsis" ToolTip="{Binding TaskName}" Width="300" Foreground="#FFFFFF" FontSize="20"/>
                     <ProgressBar x:Name="TaskProgressBar"  Height="18" Width="900" Style="{StaticResource TaskProgressBarStyle2}" Canvas.Top="50" Panel.ZIndex="0" Value="{Binding TaskProgressRatio}"/>
                     <Button x:Name="CancelButton" FontSize="15" Content="取消" Cursor="Hand" Canvas.Left="800" Width="100" Height="30" Style="{StaticResource TaskControlButton}" Panel.ZIndex="2" Canvas.Top="15" Command="{Binding CancelTaskCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" CommandParameter="{Binding DataContext, RelativeSource={RelativeSource  AncestorType=ListBoxItem}}"></Button>
                     <Button x:Name="RetryButton" FontSize="15" Content="重新上传" Cursor="Hand"  Canvas.Left="800"  Width="100" Height="30" Style="{StaticResource TaskControlButton}" Panel.ZIndex="2" Canvas.Top="15" Visibility="Collapsed" Command="{Binding RetryTaskCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" CommandParameter="{Binding DataContext, RelativeSource={RelativeSource  AncestorType=ListBoxItem}}"></Button>
@@ -56,6 +56,9 @@
                         <Setter TargetName="MessageTextBlock" Property="TextBlock.ToolTip" Value="完成"/>
                         <Setter TargetName="MessageTextBlock" Property="TextBlock.Foreground" Value="#00ff99"/>
                         <Setter TargetName="ResultControl" Property="Style" Value="{StaticResource Complete}"/>
+                        <Setter TargetName="ResultControl" Property="Canvas.Left" Value="800"/>
+                        <Setter TargetName="MessageTextBlock" Property="Canvas.Left" Value="830"/>
+                        <Setter TargetName="TaskNameTextBlock" Property="Width" Value="700"/>
                     </DataTrigger>
                     <DataTrigger Binding="{Binding TaskStatus}" Value="{x:Static local:TaskStatusEnum.Error}">
                         <Setter TargetName="CancelButton" Property="Visibility" Value="Collapsed"/>
@@ -83,9 +86,9 @@
                         <Setter TargetName="ResultControl" Property="Style" Value="{StaticResource Uploading}"/>
                     </DataTrigger>
                     <DataTrigger Binding="{Binding TaskStatus}" Value="{x:Static local:TaskStatusEnum.Ready}">
-                        <Setter TargetName="CancelButton" Property="Visibility" Value="Collapsed"/>
+                        <Setter TargetName="CancelButton" Property="Visibility" Value="Visible"/>
                         <Setter TargetName="RetryButton" Property="Visibility" Value="Collapsed"/>
-                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Text" Value="等待上传"/>
+                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Text" Value="等待上传..."/>
                         <Setter TargetName="MessageTextBlock" Property="TextBlock.ToolTip" Value="等待上传"/>
                         <Setter TargetName="TaskProgressBar" Property="Visibility" Value="Collapsed"/>
                         <Setter TargetName="MessageTextBlock" Property="TextBlock.Foreground" Value="#ffd104"/>
@@ -94,11 +97,20 @@
                     <DataTrigger Binding="{Binding TaskStatus}" Value="{x:Static local:TaskStatusEnum.Hangup}">
                         <Setter TargetName="CancelButton" Property="Visibility" Value="Collapsed"/>
                         <Setter TargetName="RetryButton" Property="Visibility" Value="Collapsed"/>
-                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Text" Value="排队等待中..."/>
-                        <Setter TargetName="MessageTextBlock" Property="TextBlock.ToolTip" Value="排队等待中"/>
+                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Text" Value="等待上传..."/>
+                        <Setter TargetName="MessageTextBlock" Property="TextBlock.ToolTip" Value="等待上传"/>
                         <Setter TargetName="TaskProgressBar" Property="Visibility" Value="Collapsed"/>
                         <Setter TargetName="MessageTextBlock" Property="TextBlock.Foreground" Value="#ffd104"/>
                         <Setter TargetName="ResultControl" Property="Style" Value="{StaticResource Ready}"/>
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding TaskStatus}" Value="{x:Static local:TaskStatusEnum.OutOfControl}">
+                        <Setter TargetName="CancelButton" Property="Visibility" Value="Collapsed"/>
+                        <Setter TargetName="RetryButton" Property="Visibility" Value="Collapsed"/>
+                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Text" Value="正在获取上传结果"/>
+                        <Setter TargetName="MessageTextBlock" Property="TextBlock.ToolTip" Value="正在获取上传结果"/>
+                        <Setter TargetName="TaskProgressBar" Property="Visibility" Value="Visible"/>
+                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Foreground" Value="#00ff99"/>
+                        <Setter TargetName="ResultControl" Property="Style" Value="{StaticResource Uploading}"/>
                     </DataTrigger>
                 </DataTemplate.Triggers>
             </DataTemplate>

@@ -1,4 +1,6 @@
-﻿using nevermore.wpf.Windows;
+﻿using Microsoft.Win32;
+using nevermore.common;
+using nevermore.wpf.Windows;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -26,12 +28,13 @@ namespace nevermore.wpf
 
         private string pathText;
         private string resultText;
-        private Window Window;
+        private bool isTaskCompleted = true;
+        TestWindow testWindow;
         public MainWindow()
         {
             InitializeComponent();
             this.DataContext = this;
-            Window = new TestWindow();
+            //Window = new TestWindow();
         }
         public string PathText
         {
@@ -59,7 +62,7 @@ namespace nevermore.wpf
         }
        public event PropertyChangedEventHandler PropertyChanged;
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private async void Button_Click(object sender, RoutedEventArgs e)
         {
             if (Directory.Exists(PathText))
             {
@@ -69,18 +72,58 @@ namespace nevermore.wpf
             {
                 ResultText = "NOK!";
             }
-            new TestWindow().Show();
+
+            //new TestWindow().Show();
 
         }
 
-        private void button_Copy_Click(object sender, RoutedEventArgs e)
+        private async void button_Copy_Click(object sender, RoutedEventArgs e)
         {
-            Window?.Show();
+            
         }
 
         private void button_Click_1(object sender, RoutedEventArgs e)
         {
             new SecurityTestWindow().Show();
+        }
+
+        private async void button_Copy1_Click(object sender, RoutedEventArgs e)
+        {
+            await Pinger.TestPing("172.18.19.101");
+        }
+
+        private async void button_FileSelect_Click(object sender, RoutedEventArgs e)
+        {
+            if (!isTaskCompleted)
+            {
+                return;
+            }
+            using (testWindow = new TestWindow())
+            {
+                isTaskCompleted = false;
+                OpenFileDialog openFileDialog = new OpenFileDialog
+                {
+                    InitialDirectory = @"C:\desktop",
+                    Filter = "所有文件(*.*)|*.*",
+                    Multiselect = true //是否可以多选true=ok/false=no
+                };
+                if (openFileDialog.ShowDialog() == true)
+                {
+                    testWindow.Show();
+                    await testWindow.RunTaskMonitor(openFileDialog.FileNames.ToList()).ContinueWith(_=>
+                    {
+                        isTaskCompleted = true;
+                    });
+                }
+            }
+        }
+
+        private void button_Monitor_Click(object sender, RoutedEventArgs e)
+        {
+            if (!isTaskCompleted)
+            {
+                testWindow?.Show();
+            }
         }
     }
 }

@@ -71,7 +71,6 @@ namespace nevermore.wpf.Controls
             {
                 if (Equals(taskProgressRatio, value)) return;
                 taskProgressRatio = value;
-                if (100 == value) TaskStatus = TaskStatusEnum.Completed;
                 OnPropertyChanged();
             }
         }
@@ -133,14 +132,30 @@ namespace nevermore.wpf.Controls
         Error = 4,
         Cancel = 5,
         Hangup = 6,
+        OutOfControl = 7,
     }
     public enum FileTypeEnum
     {
+        [Description(".doc")]
         DOC = 1,
+        [Description(".docx")]
+        DOCX,
+        [Description(".pdf")]
         PDF = 2,
+        [Description(".png")]
         PNG = 3,
+        [Description(".jpg")]
         JPG = 4,
-        MP3 = 5,
-        MP4 = 6,
+        [Description(".bmp")]
+        BMP = 5,
+        [Description(".gif")]
+        GIF = 6,
+        [Description(".jpeg")]
+        JPEG = 7,
+        [Description(".mp3")]
+        MP3 = 8,
+        [Description(".mp4")]
+        MP4 =9,
+        OTHER = 0,
     }
 }
