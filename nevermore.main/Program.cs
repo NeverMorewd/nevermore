@@ -1,4 +1,5 @@
-﻿using nevermore.utilities.office;
+﻿using nevermore.learn.async;
+using nevermore.utilities.office;
 using nevermore.winform;
 using System;
 using System.IO;
@@ -67,24 +68,25 @@ namespace nevermore.console
                 //}
                 //WordReplaceTagWord.Replace(@"E:\project\TestFiles\ReplaceTags.docx");
                 //new ReplaceTagWithoutWord();
-                new insertPicToDoc().insert(@"C:\Users\Administrator\Desktop\mdbak.doc", @"C:\Users\Administrator\Desktop\158112890332.png", "SIGNT");
-                Console.WriteLine("Enter 'q' to exit!");
-                while (true)
-                {
-                    string path = Console.ReadLine();
-                    if (path.Equals("q"))
-                    {
-                        break;
-                    }
-                    if (Directory.Exists(path))
-                    {
-                        Console.WriteLine("ok");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Nok");
-                    }
-                }
+                //new insertPicToDoc().insert(@"C:\Users\Administrator\Desktop\mdbak.doc", @"C:\Users\Administrator\Desktop\158112890332.png", "SIGNT");
+                //Console.WriteLine("Enter 'q' to exit!");
+                //while (true)
+                //{
+                //    string path = Console.ReadLine();
+                //    if (path.Equals("q"))
+                //    {
+                //        break;
+                //    }
+                //    if (Directory.Exists(path))
+                //    {
+                //        Console.WriteLine("ok");
+                //    }
+                //    else
+                //    {
+                //        Console.WriteLine("Nok");
+                //    }
+                //}
+                TestTaskQueue.Run();
 
             }
             Console.ReadLine();

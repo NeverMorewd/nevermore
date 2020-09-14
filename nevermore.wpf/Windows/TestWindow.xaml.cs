@@ -49,39 +49,40 @@ namespace nevermore.wpf
                 OnPropertyChanged();
             }
         }
+        private Visibility nullTaskNoteVisibility;
+        public Visibility NullTaskNoteVisibility
+        {
+            get
+            {
+                return nullTaskNoteVisibility;
+            }
+            set
+            {
+                if (Equals(nullTaskNoteVisibility, value)) return;
+                nullTaskNoteVisibility = value;
+                OnPropertyChanged();
+            }
+        }
 
         public ICommand CancelTaskCommand { get; set; }
         public ICommand RetryTaskCommand { get; set; }
         public TaskExcuteDelegate TaskExcuteHandler { get; set; }
         public int MaxTaskQuantity { get; set; }
+        public TaskRunModelEnum RunModelEnum { get ; set ; }
+        private bool isRun = false;
 
         ManualResetEvent resetEvent = new ManualResetEvent(true);
-        private IEnumerable<Task> progressingTasks;
-        object info = null;
         public TestWindow()
         {
             InitializeComponent();
             this.DataContext = this;
             //TaskExcuteHandler = UploadFile;
             TaskExcuteHandler = UpLoadFileAsync;
-            MaxTaskQuantity = 1;
+            RunModelEnum = TaskRunModelEnum.SINGLE;
+            MaxTaskQuantity = 3;
             CancelTaskCommand = new NMCommand<TaskItem<bool>>(OnCancelTask);
             RetryTaskCommand = new NMCommand<TaskItem<bool>>(OnRetryTask);
-
-            //List<ObservableCollection<TaskItem<bool>>> collectionGroup = GroupByCount(TaskCollection, 3);
-            //foreach (var collection in collectionGroup)
-            //{
-            //    progressingTasks = InitTaskInstance(collection);
-            //    Task.Run(async () => await StartMutiTask(progressingTasks)).ConfigureAwait(false);
-            //}
-            //Task.WhenAny(collectionGroup.Select(async collection =>
-            //{
-            //    progressingTasks = InitTaskInstance(collection);
-            //    await StartMutiTask(progressingTasks);
-            //}));
-
-
-
+            NullTaskNoteVisibility = Visibility.Collapsed;
         }
         private  void TaskEnumerbleExecutor(IEnumerator<Task> tasksSource)
         {
@@ -143,7 +144,7 @@ namespace nevermore.wpf
                     else
                     {
                         i++;
-                        await Task.WhenAll(tasks).ContinueWith(async _ =>
+                        await Task.WhenAny(tasks).ContinueWith(async _ =>
                         {
                             tasks.Clear();
                             await TaskEnumerbleExecutorByGroup(tasksSource, aCount, i, tasks);
@@ -163,24 +164,29 @@ namespace nevermore.wpf
                 }
             }
         }
-        private async void OnRetryTask(TaskItem<bool> obj)
+        private async Task TasksExecutorByMaxTask(IEnumerable<TaskItem<bool>> tasksSource, int MaxTask)
         {
-            await Task.Run(async()=> 
-            {
-                while (TaskCollection.Where(x => x.TaskStatus == TaskStatusEnum.InProgress).Count() >= 1)
-                {
-                    obj.TaskStatus = TaskStatusEnum.Hangup;
-                    await Task.Delay(1000);
-                }
-            });
+            Queue<TaskItem<bool>> taskQueue = new Queue<TaskItem<bool>>();
+        }
+        private async  void OnRetryTask(TaskItem<bool> obj)
+        {
+            //await Task.Run(async () =>
+            //{
+            //    while (TaskCollection.Where(x => x.TaskStatus == TaskStatusEnum.InProgress).Count() >= 1)
+            //    {
+            //        obj.TaskStatus = TaskStatusEnum.Hangup;
+            //        await Task.Delay(100);
+            //    }
+            //});
+            obj.TaskStatus = TaskStatusEnum.Hangup;
             if (!obj.TaskCancellationTokenSource.IsCancellationRequested)
             {
                 obj.TaskCancellationTokenSource.Cancel();
             }
-            obj.TaskStatus = TaskStatusEnum.InProgress;
-            obj.TaskCancellationTokenSource = new CancellationTokenSource();
-            obj.TaskInstance = TaskExcuteHandler.Invoke(obj, obj.TaskCancellationTokenSource.Token);
-            await obj.TaskInstance.ConfigureAwait(false);
+            //obj.TaskStatus = TaskStatusEnum.Hangup;
+            //obj.TaskCancellationTokenSource = new CancellationTokenSource();
+            //obj.TaskInstance = TaskExcuteHandler.Invoke(obj, obj.TaskCancellationTokenSource.Token);
+            //await obj.TaskInstance.ConfigureAwait(false);
             //await progressingTasks.FirstOrDefault(t => t.Id == obj.TaskInstance.Id);
             //await Task.Run(async () => { await obj.TaskInstance; }, obj.TaskCancellationTokenSource.Token).ConfigureAwait(false);
         }
@@ -193,28 +199,112 @@ namespace nevermore.wpf
                 obj.TaskCancellationTokenSource.Cancel();
             }
         }
-        private IEnumerable<Task> InitTaskInstance(ObservableCollection<TaskItem<bool>> aTasks)
+        private IEnumerable<Task> InitTaskInstance(IEnumerable<TaskItem<bool>> aTasks)
         {
             var progressingTasks = aTasks.Select(async t =>
             {
-                t.TaskInstance = TaskExcuteHandler.Invoke(t,t.TaskCancellationTokenSource.Token);
+                if (t.TaskInstance== null)
+                {
+                    t.TaskInstance = TaskExcuteHandler.Invoke(t, t.TaskCancellationTokenSource.Token);
+                }
                 await t.TaskInstance.ConfigureAwait(false);
             });
             return progressingTasks;             
         }
-        public async Task StartMutiTask(IEnumerable<Task> aProgressingTasks)
+        public async Task StartMutiTask(IEnumerable<Task> aProgressingTasks, TaskRunModelEnum runModelEnum = TaskRunModelEnum.SINGLE)
         {
-            //同时执行所有task
-            //await Task.WhenAll(aProgressingTasks.ToArray()).ConfigureAwait(false);
-            //按顺序执行
-            // await Task.Run(() => TaskEnumerbleExecutor(aProgressingTasks.GetEnumerator()));
-            //分组执行
-            await TaskEnumerbleExecutorByGroup(aProgressingTasks.GetEnumerator(), MaxTaskQuantity);
-            //if (res.Any(x => x == true))
-            //{
-            //await Task.Delay(2000);
-            //}
+            switch (runModelEnum)
+            {
+                case TaskRunModelEnum.SINGLE:
+                    //按顺序执行
+                    await Task.Run(() => TaskEnumerbleExecutor(aProgressingTasks.GetEnumerator()));
+                    break;
+                case TaskRunModelEnum.PARALLEL:
+                    //同时执行所有task
+                    await Task.WhenAll(aProgressingTasks.ToArray()).ConfigureAwait(false);
+                    break;
+                case TaskRunModelEnum.GROUP:
+                    //分组执行
+                    await TaskEnumerbleExecutorByGroup(aProgressingTasks.GetEnumerator(), MaxTaskQuantity);
+                    break;
+            }
         }
+        private void TraversalTaskList()
+        {
+            Task.Run(async ()=> 
+            {
+                while (true)
+                {
+                    if (TaskCollection.Count() == 0)
+                    {
+                        NullTaskNoteVisibility = Visibility.Visible;
+                        return;
+                    }
+                    NullTaskNoteVisibility = Visibility.Collapsed;
+                    TaskCollection = new ObservableCollection<TaskItem<bool>>(TaskCollection.Where(x=>x.TaskStatus != TaskStatusEnum.Completed));
+                    if (TaskCollection.FirstOrDefault(x => x.TaskStatus == TaskStatusEnum.InProgress) != null)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        await Task.Run(async () =>
+                        {
+                            var task = TaskCollection.FirstOrDefault(t => t.TaskStatus == TaskStatusEnum.Ready || t.TaskStatus == TaskStatusEnum.Hangup);
+                            if (task != null)
+                            {
+                                if (task.TaskStatus == TaskStatusEnum.Hangup)
+                                {
+                                    task.TaskCancellationTokenSource = new CancellationTokenSource();
+                                }
+                                task.TaskInstance = TaskExcuteHandler.Invoke(task, task.TaskCancellationTokenSource.Token);
+                                await task.TaskInstance;
+                            }
+                        });
+                    }
+                    await Task.Delay(1000);
+                }
+            });
+        }
+        private  void TraversalTaskListNew(ObservableCollection<TaskItem<bool>> aTaskCollection)
+        {
+            isRun = true;
+            Task.Run(async () =>
+            {
+                if (aTaskCollection.Count() == 0)
+                {
+                    NullTaskNoteVisibility = Visibility.Visible;
+                    return;
+                }
+                NullTaskNoteVisibility = Visibility.Collapsed;
+                TaskCollection = new ObservableCollection<TaskItem<bool>>(aTaskCollection.Where(x => x.TaskStatus != TaskStatusEnum.Completed));
+                if (TaskCollection.FirstOrDefault(x => x.TaskStatus == TaskStatusEnum.InProgress) != null)
+                {
+                    TraversalTaskListNew(TaskCollection);
+                    await Task.Delay(100);
+                }
+                else
+                {
+                    var task = aTaskCollection.FirstOrDefault(t => t.TaskStatus == TaskStatusEnum.Ready || t.TaskStatus == TaskStatusEnum.Hangup);
+                    if (task != null)
+                    {
+                        if (task.TaskStatus == TaskStatusEnum.Hangup)
+                        {
+                            task.TaskCancellationTokenSource = new CancellationTokenSource();
+                        }
+                        task.TaskInstance = TaskExcuteHandler.Invoke(task, task.TaskCancellationTokenSource.Token);
+                        await task.TaskInstance.ContinueWith(_ => TraversalTaskListNew(TaskCollection));
+                        await Task.Delay(100);
+                    }
+                    else 
+                    {
+                        TraversalTaskListNew(TaskCollection);
+                        await Task.Delay(1000);
+                    }
+                }
+            });
+        }
+
         private List<ObservableCollection<T>> GroupByCount<T>(ObservableCollection<T> aCollection, int aCount)
         {
             List<ObservableCollection<T>> res = new List<ObservableCollection<T>>();
@@ -245,125 +335,6 @@ namespace nevermore.wpf
             }
             return res;
         }
-        //private async Task UpLoadFileAsync(TaskItem aTaskItem,CancellationToken cancellationToken)
-        //{
-        //    switch (aTaskItem.FileType)
-        //    {
-        //        case FileTypeEnum.DOC:
-        //            await Task.Run(async () =>
-        //            {
-        //                int percentComplete = 0;
-        //                aTaskItem.TaskMessage = string.Empty;
-        //                while (true)
-        //                {
-        //                    if (cancellationToken.IsCancellationRequested)
-        //                    {
-        //                        percentComplete = 0;
-        //                        aTaskItem.Progress.Report(percentComplete);
-        //                        aTaskItem.TaskMessage = "该任务已被取消"; 
-        //                        return;
-        //                    }
-        //                    await Task.Delay(100);
-        //                    percentComplete++;
-        //                    if (aTaskItem.Progress != null)
-        //                    {
-        //                        aTaskItem.Progress.Report(percentComplete);
-        //                    }
-        //                    if (percentComplete == 100)
-        //                    {
-        //                        aTaskItem.TaskMessage = "已完成";
-        //                        break;
-        //                    }
-        //                }
-        //            }, cancellationToken);
-        //            break;
-        //        case FileTypeEnum.PNG:
-        //            await Task.Run(async () =>
-        //            {
-        //                int percentComplete = 0;
-        //                aTaskItem.TaskMessage = string.Empty;
-        //                while (true)
-        //                {
-        //                    if (cancellationToken.IsCancellationRequested)
-        //                    {
-        //                        percentComplete = 0;
-        //                        aTaskItem.Progress.Report(percentComplete);
-        //                        aTaskItem.TaskMessage = "该任务已被取消";
-        //                        return;
-        //                    }
-        //                    await Task.Delay(200);
-        //                    percentComplete++;
-        //                    if (aTaskItem.Progress != null)
-        //                    {
-        //                        aTaskItem.Progress.Report(percentComplete);
-        //                    }
-        //                    if (percentComplete == 100)
-        //                    {
-        //                        aTaskItem.TaskMessage = "已完成";
-        //                        break;
-        //                    }
-        //                }
-        //            }, cancellationToken);
-        //            break;
-        //        case FileTypeEnum.PDF:
-        //            await Task.Run(async () =>
-        //            {
-        //                int percentComplete = 0;
-        //                aTaskItem.TaskMessage = string.Empty;
-        //                while (true)
-        //                {
-        //                    if (cancellationToken.IsCancellationRequested)
-        //                    {
-        //                        percentComplete = 0;
-        //                        aTaskItem.Progress.Report(percentComplete);
-        //                        aTaskItem.TaskMessage = "该任务已被取消";
-        //                        return;
-        //                    }
-        //                    await Task.Delay(300);
-        //                    percentComplete++;
-        //                    if (aTaskItem.Progress != null)
-        //                    {
-        //                        aTaskItem.Progress.Report(percentComplete);
-        //                    }
-        //                    if (percentComplete == 100)
-        //                    {
-        //                        aTaskItem.TaskMessage = "已完成";
-        //                        break;
-        //                    }
-        //                }
-        //            }, cancellationToken);
-        //            break;
-        //        case FileTypeEnum.MP3:
-        //            await Task.Run(async () =>
-        //            {
-        //                int percentComplete = 0;
-        //                aTaskItem.TaskMessage = string.Empty;
-        //                while (true)
-        //                {
-        //                    if (cancellationToken.IsCancellationRequested)
-        //                    {
-        //                        percentComplete = 0;
-        //                        aTaskItem.Progress.Report(percentComplete);
-        //                        aTaskItem.TaskMessage = "该任务已被取消";
-        //                        return;
-        //                    }
-        //                    await Task.Delay(90);
-        //                    percentComplete++;
-        //                    if (aTaskItem.Progress != null)
-        //                    {
-        //                        aTaskItem.Progress.Report(percentComplete);
-        //                    }
-        //                    if (percentComplete == 100)
-        //                    {
-        //                        aTaskItem.TaskMessage = "已完成";
-        //                        break;
-        //                    }
-        //                }
-        //            }, cancellationToken);
-        //            break;
-        //    }
-
-        //}
         private async Task<bool> UpLoadFileAsync(TaskItem<bool> aTaskItem,CancellationToken cancellationToken,object para)
         {
             try
@@ -390,7 +361,7 @@ namespace nevermore.wpf
                         }
                         if (aTaskItem.TaskProgressRatio >= 95 && aTaskItem.FileType == FileTypeEnum.PDF)
                         {
-                            await Task.Delay(1000);
+                            await Task.Delay(300);
                         }
                         if (percentComplete == 100)
                         {
@@ -416,12 +387,15 @@ namespace nevermore.wpf
             return false;
 
         }
-        public async Task RunTaskMonitor(List<string> filePaths, params object[] optionalParams)
+        public void RunTaskMonitor(List<string> fileNames, params object[] optionalParams)
         {
-            TaskCollection = new ObservableCollection<TaskItem<bool>>();
-            filePaths.ForEach(x =>
+            if (TaskCollection == null)
             {
-                TaskCollection?.Add(new TaskItem<bool>
+                TaskCollection = new ObservableCollection<TaskItem<bool>>();
+            }
+            fileNames.ForEach(x =>
+            {
+                TaskItem<bool> t = new TaskItem<bool>
                 {
                     TaskId = new Random().Next(),
                     TaskName = System.IO.Path.GetFileName(x),
@@ -429,10 +403,36 @@ namespace nevermore.wpf
                     FileType = EnumExtender.GetEnum<FileTypeEnum>(System.IO.Path.GetExtension(x)),
                     FilePath = x,
                     TaskStatus = TaskStatusEnum.Ready,
-                });
+                  };
+                if (new FileInfo(x).Length > 104857600)
+                {
+                    t.TaskStatus = TaskStatusEnum.Error;
+                    t.TaskMessage = "文件大小超过100M，暂不支持";
+                }
+                else if (new FileInfo(x).Length >= 1048576)
+                {
+                    t.FileLength = System.Math.Ceiling(new FileInfo(x).Length / 1048576.0) + "MB";
+                }
+                else if (new FileInfo(x).Length == 0)
+                {
+                    t.TaskStatus = TaskStatusEnum.Error;
+                    t.TaskMessage = "禁止上传0KB文件";
+                }
+                else
+                {
+                    t.FileLength = System.Math.Ceiling(new FileInfo(x).Length / 1024.0) + "KB";
+                }
+                 TaskCollection.Add(t);
             });
-            progressingTasks = InitTaskInstance(TaskCollection);
-            await StartMutiTask(progressingTasks);
+            if (!isRun)
+            {
+                TraversalTaskListNew(TaskCollection);
+            }
+           
+            //progressingTasks = InitTaskInstance(TaskCollection);
+            //await StartMutiTask(progressingTasks);
+            //await Task.WhenAll(progressingTasks.Take(MaxTaskQuantity));
+            //await TasksExecutorByMaxTask(TaskCollection, MaxTaskQuantity);
             //TaskCollection = new ObservableCollection<TaskItem<bool>>
             //{
             //    new TaskItem<bool>
@@ -528,7 +528,11 @@ namespace nevermore.wpf
             //};
             //info = new { url = @"http://172.18.19.101:8888/testimony/api/v1/files"};
         }
-       
+        private void PassParaTask<T>(T at)
+        {
+            Task t = new Task(new Action<object>(o => { }), new CancellationTokenSource().Token);
+            t.Start();
+        }
         private  void ReSetAll()
         {
             //只对同时上传有效
@@ -552,20 +556,18 @@ namespace nevermore.wpf
             // 时间戳，用做boundary  
             string timeStamp = DateTime.Now.Ticks.ToString("x");
 
-            //根据uri创建HttpWebRequest对象  
-            string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1OTk3NDQ5MzAsInVzZXJfbmFtZSI6ImZtVFAwMnRNSkJhQVh5S3kzR1FCWUE9PSIsImp0aSI6ImZmNDM2NjEwLTQ4NzctNGIwNi04YTFhLWI1OGFkZjZkOTJiNSIsImNsaWVudF9pZCI6InByaXZhdGVfY2xpZW50X3dpbmRvd3MiLCJzY29wZSI6WyJzY29wZV9jb3JlIl19.8QI3tMv8fMq3jztAmQkZocW-Hpw_5LHN5TnFwzAdX34";
+            string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1OTk4NjAwNzAsInVzZXJfbmFtZSI6Ii9wM2Z3OWc3U3JZQTJ5WUZIWUVWZHc9PSIsImp0aSI6ImJhNmExNjM1LWJkOGUtNGQzMS1hM2FlLWQyYTZlNGNhZGYwZCIsImNsaWVudF9pZCI6InByaXZhdGVfY2xpZW50X3dpbmRvd3MiLCJzY29wZSI6WyJzY29wZV9jb3JlIl19.5q8O_dY4HWv0MCweIiiSYoAqkIK3GS4C2T4pcbKDANY";
             HttpWebRequest httpReq = (HttpWebRequest)WebRequest.Create(new Uri(@"http://172.18.19.101:8888/testimony/api/v1/files"));
             httpReq.Method = "POST";
             httpReq.Headers.Add("Authorization", $"Bearer {token}");
-            httpReq.AllowWriteStreamBuffering = false; //对发送的数据不使用缓存  
-            httpReq.Timeout = 1800000; //设置获得响应的超时时间（30分钟）  
+            httpReq.AllowWriteStreamBuffering = false; 
+            httpReq.Timeout = 1800000;
 
             httpReq.ContentType = "multipart/form-data; boundary=" + timeStamp;
             httpReq.KeepAlive = false;
             httpReq.ServicePoint.Expect100Continue = false;
             try
-            {
-                //文件  
+            {  
                 using (FileStream fileStream = new FileStream(aTaskItem.FilePath, FileMode.Open, FileAccess.Read))
                 {
                     using (BinaryReader binaryReader = new BinaryReader(fileStream))
@@ -594,14 +596,14 @@ namespace nevermore.wpf
                         //------------------------------[form-data Start]----------------------------
                         reqFormat = startBoundary + "\r\nContent-Type:text/plain;charset=UTF-8" +
                                         "\r\nContent-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}\r\n";
-                        req = string.Format(reqFormat, "reserveId", "dfe64873568a4894b7efab5902ebca80");
+                        req = string.Format(reqFormat, "reserveId", "6e3d9402d1f74258a0fda668d24bfafb");
                         reqBytes1 = Encoding.UTF8.GetBytes(req);
                         //------------------------------[form-data End]----------------------------
 
                         //------------------------------[form-data Start]----------------------------
                         reqFormat = startBoundary + "\r\nContent-Type:text/plain;charset=UTF-8" +
                                         "\r\nContent-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}\r\n";
-                        req = string.Format(reqFormat, "participantId", "edc423566078463fadb22b752a4948b0");
+                        req = string.Format(reqFormat, "participantId", "bc84a42094ef4794a75026463aa4058a");
                         byte[] reqBytes2 = Encoding.UTF8.GetBytes(req);
                         //------------------------------[form-data End]----------------------------
 
@@ -615,7 +617,7 @@ namespace nevermore.wpf
                         //------------------------------[form-data Start]----------------------------
                         reqFormat = startBoundary + "\r\nContent-Type:text/plain;charset=UTF-8" +
                                         "\r\nContent-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}\r\n";
-                        req = string.Format(reqFormat, "ascription", 2);
+                        req = string.Format(reqFormat, "ascription", 1);
                         byte[] reqBytes4 = Encoding.UTF8.GetBytes(req);
                         //------------------------------[form-data End]----------------------------
 
@@ -635,13 +637,13 @@ namespace nevermore.wpf
                         //------------------------------[form-data Start]----------------------------
                         reqFormat = startBoundary + "\r\nContent-Type:text/plain;charset=UTF-8" +
                                         "\r\nContent-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}\r\n";
-                        req = string.Format(reqFormat, "ajbh", "6ba1f69eab24493691562419ccc8b8b5");
+                        req = string.Format(reqFormat, "ajbh", "38e0c942b8594b9abdd6c214cfa1062b");
                         byte[] reqBytes7 = Encoding.UTF8.GetBytes(req);
                         //------------------------------[form-data End]----------------------------
                         //------------------------------[form-data Start]----------------------------
                         reqFormat = startBoundary + "\r\nContent-Type:text/plain;charset=UTF-8" +
                                         "\r\nContent-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}\r\n";
-                        req = string.Format(reqFormat, "uploader", "刘子为");
+                        req = string.Format(reqFormat, "uploader", "王东");
                         byte[] reqBytes8 = Encoding.UTF8.GetBytes(req);
                         //------------------------------[form-data End]----------------------------
                         //------------------------------[form-data Start]----------------------------
@@ -687,28 +689,25 @@ namespace nevermore.wpf
                         postStream.Write(postHeaderBytes, 0, postHeaderBytes.Length);
                         percentComplete += 10;
                         aTaskItem.Progress?.Report(percentComplete);
-                        //await Task.Run(async () =>
-                        //{
+
                         float re = 0;
                         while (size > 0)
                         {
+                            if (cancellationToken.IsCancellationRequested)
+                            {
+                                aTaskItem.TaskStatus = TaskStatusEnum.Cancel;
+                                return false;
+                            }
                             postStream.Write(buffer, 0, size);
-                            //info.nowBytes += size;
                             re += ((float)bufferLength) / ((float)length);
                             percentComplete = float.Parse(re.ToString("0.0")) * 70;
-                            aTaskItem.Progress?.Report(percentComplete + 10);
                             size = binaryReader.Read(buffer, 0, bufferLength);
-                            if (re.ToString("0.0") == "0.1" || re.ToString("0.0") == "0.5")
-                            {
-                                if (cancellationToken.IsCancellationRequested)
-                                {
-                                    aTaskItem.TaskStatus = TaskStatusEnum.Cancel;
-                                    return false;
-                                }
-                                await Task.Delay(TimeSpan.FromMilliseconds(1), cancellationToken).ConfigureAwait(false);
-                            }
+                            aTaskItem.Progress?.Report(percentComplete + 10);
+                            //if (re.ToString("0.0") == "0.5")
+                            //{
+                            //    await Task.Delay(TimeSpan.FromMilliseconds(1), cancellationToken).ConfigureAwait(false);
+                            //}
                         }
-                        //});
 
                         //添加尾部边界
                         postStream.Write(boundaryBytes, 0, boundaryBytes.Length);
@@ -737,7 +736,7 @@ namespace nevermore.wpf
                             {
                                 //percentComplete = 99;
                                 //aTaskItem.Progress?.Report(percentComplete);
-                                aTaskItem.TaskStatus = TaskStatusEnum.Error;
+                                aTaskItem.TaskStatus = TaskStatusEnum.ErrorCanRetry;
                                 aTaskItem.TaskMessage = $"上传接口异常";
                                 return false;
                             }
@@ -748,7 +747,7 @@ namespace nevermore.wpf
                                 {
                                     //percentComplete = 99;
                                     //aTaskItem.Progress?.Report(percentComplete);
-                                    aTaskItem.TaskStatus = TaskStatusEnum.Error;
+                                    aTaskItem.TaskStatus = TaskStatusEnum.ErrorCanRetry;
                                     aTaskItem.TaskMessage = $"上传接口异常  {json.Code}  {json.Msg}";
                                     return false;
                                 }
@@ -772,7 +771,7 @@ namespace nevermore.wpf
                 }
                 else
                 {
-                    aTaskItem.TaskStatus = TaskStatusEnum.Error;
+                    aTaskItem.TaskStatus = TaskStatusEnum.ErrorCanRetry;
                     aTaskItem.TaskMessage = ex.Message;
                 }
             }

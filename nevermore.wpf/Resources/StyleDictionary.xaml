@@ -278,85 +278,8 @@
     <SolidColorBrush x:Key="ProgressBar.Progress" Color="#FF06B025" />
     <SolidColorBrush x:Key="ProgressBar.Background" Color="Transparent" />
     <SolidColorBrush x:Key="ProgressBar.Border" Color="#FFBCBCBC" />
-    <Style x:Key="TaskProgressBarStyle" TargetType="{x:Type ProgressBar}">
-        <Setter Property="Foreground">
-            <Setter.Value>
-                <!--<LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                    <GradientStop Color="#99158aff" Offset="0.0" />
-                    <GradientStop Color="#9900ccff" Offset="1.0" />
-                </LinearGradientBrush>-->
-                <SolidColorBrush Color="Green" />
-            </Setter.Value>
-        </Setter>
-        <Setter Property="Background" Value="{StaticResource ProgressBar.Background}" />
-        <Setter Property="BorderBrush" Value="{StaticResource ProgressBar.Border}" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type ProgressBar}">
-                    <Grid x:Name="TemplateRoot">
-                        <Border
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="0" />
-                        <Rectangle x:Name="PART_Track" />
-                        <Grid
-                            x:Name="PART_Indicator"
-                            HorizontalAlignment="Left"
-                            ClipToBounds="true">
-                            <Rectangle x:Name="Indicator" Fill="{TemplateBinding Foreground}" />
-                            <Rectangle
-                                x:Name="Animation"
-                                Fill="{TemplateBinding Foreground}"
-                                RenderTransformOrigin="0.5,0.5">
-                                <Rectangle.RenderTransform>
-                                    <TransformGroup>
-                                        <ScaleTransform />
-                                        <SkewTransform />
-                                        <RotateTransform />
-                                        <TranslateTransform />
-                                    </TransformGroup>
-                                </Rectangle.RenderTransform>
-                            </Rectangle>
-                        </Grid>
-                        <VisualStateManager.VisualStateGroups>
-                            <VisualStateGroup x:Name="CommonStates">
-                                <VisualState x:Name="Determinate" />
-                                <VisualState x:Name="Indeterminate">
-                                    <Storyboard RepeatBehavior="Forever">
-                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Animation" Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)">
-                                            <EasingDoubleKeyFrame KeyTime="0" Value="0.25" />
-                                            <EasingDoubleKeyFrame KeyTime="0:0:1" Value="0.25" />
-                                            <EasingDoubleKeyFrame KeyTime="0:0:2" Value="0.25" />
-                                        </DoubleAnimationUsingKeyFrames>
-                                        <PointAnimationUsingKeyFrames Storyboard.TargetName="Animation" Storyboard.TargetProperty="(UIElement.RenderTransformOrigin)">
-                                            <EasingPointKeyFrame KeyTime="0" Value="-0.5,0.5" />
-                                            <EasingPointKeyFrame KeyTime="0:0:1" Value="0.5,0.5" />
-                                            <EasingPointKeyFrame KeyTime="0:0:2" Value="1.5,0.5" />
-                                        </PointAnimationUsingKeyFrames>
-                                    </Storyboard>
-                                </VisualState>
-                            </VisualStateGroup>
-                        </VisualStateManager.VisualStateGroups>
-                    </Grid>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="Orientation" Value="Vertical">
-                            <Setter TargetName="TemplateRoot" Property="LayoutTransform">
-                                <Setter.Value>
-                                    <RotateTransform Angle="-90" />
-                                </Setter.Value>
-                            </Setter>
-                        </Trigger>
-                        <Trigger Property="IsIndeterminate" Value="true">
-                            <Setter TargetName="Indicator" Property="Visibility" Value="Collapsed" />
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
 
-    <Style x:Key="TaskProgressBarStyle2" TargetType="{x:Type ProgressBar}">
+    <Style x:Key="TaskProgressBarStyle" TargetType="{x:Type ProgressBar}">
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="Background">
@@ -596,9 +519,9 @@
                                     <ContentPresenter TextBlock.Foreground="{TemplateBinding Foreground}" UIElement.IsEnabled="{TemplateBinding IsEnabled}" />
                                 </Border>
                                 <ControlTemplate.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
+                                    <!--<Trigger Property="IsMouseOver" Value="True">
                                         <Setter TargetName="bg" Property="Background" Value="{StaticResource ListBoxItem.IsMouseOver}" />
-                                    </Trigger>
+                                    </Trigger>-->
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
                         </Setter.Value>
@@ -636,7 +559,7 @@
         </Path>
     </Canvas>
     <Canvas
-        x:Key="VectorGraph_Trigon"
+        x:Key="VectorGraph_ErrorCanRetry"
         Width="1024"
         Height="1024"
         x:Shared="False">
@@ -687,7 +610,7 @@
         </Path>
     </Canvas>
     <Canvas
-        x:Key="VectorGraph_Cancel"
+        x:Key="VectorGraph_Error"
         Width="1024"
         Height="1024"
         x:Shared="False">
@@ -703,6 +626,23 @@
             </Path.Data>
         </Path>
     </Canvas>
+    <Canvas
+        x:Key="VectorGraph_Cancel"
+        Width="1024"
+        Height="1024"
+        x:Shared="False">
+        <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Panel.ZIndex="2">
+            <Path.Fill>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Offset="0" Color="#ff415a" />
+                    <GradientStop Offset="1" Color="#f58060" />
+                </LinearGradientBrush>
+            </Path.Fill>
+            <Path.Data>
+                <PathGeometry Figures="M497 90c246.319 0 446 199.681 446 446S743.319 982 497 982 51 782.319 51 536 250.681 90 497 90z m218.343 417.263H278.598l-0.706 0.008c-16.18 0.375-29.18 13.608-29.18 29.878 0 16.506 13.38 29.887 29.886 29.887h436.745l0.706-0.008c16.18-0.375 29.18-13.608 29.18-29.879 0-16.505-13.38-29.886-29.886-29.886z" FillRule="NonZero"/>
+            </Path.Data>
+        </Path>
+    </Canvas>
     <Style x:Key="Uploading" TargetType="{x:Type Control}">
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         <Setter Property="Template">
@@ -713,13 +653,24 @@
             </Setter.Value>
         </Setter>
     </Style>
-    <Style x:Key="Warning" TargetType="{x:Type Control}">
+    <Style x:Key="Error" TargetType="{x:Type Control}">
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         <Setter Property="Background" Value="White" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Control}">
-                    <Viewbox Child="{StaticResource VectorGraph_Trigon}" Stretch="UniformToFill" />
+                    <Viewbox Child="{StaticResource VectorGraph_Error}" Stretch="UniformToFill" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="ErrorCanRetry" TargetType="{x:Type Control}">
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Background" Value="White" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Control}">
+                    <Viewbox Child="{StaticResource VectorGraph_ErrorCanRetry}" Stretch="UniformToFill" />
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

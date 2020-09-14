@@ -128,6 +128,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="async\AsyncFoundation.cs" />
+    <Compile Include="async\Class1.cs" />
     <Compile Include="DBHelper.cs" />
     <Compile Include="DesignPattern\CommandPattern\Broker.cs" />
     <Compile Include="DesignPattern\CommandPattern\BuyStock.cs" />
@@ -140,7 +141,6 @@
     <Compile Include="office\insertPicToDoc.cs" />
     <Compile Include="office\WordReplaceTagWord.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Proxy\HttpProxyReferToHessian.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -148,6 +148,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DesignPattern\DynamicProxy\" />
+    <Folder Include="Proxy\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -74,6 +74,11 @@ namespace nevermore.wpf
             }
 
             //new TestWindow().Show();
+            FileInfo fileInfo = new FileInfo("hha");
+            string re = System.Math.Ceiling(fileInfo.Length / 1024.0) + "KB";
+
+            FileInfo fileInfoBig = new FileInfo("hha");
+            string reBig = System.Math.Ceiling(fileInfoBig.Length / 1048576.0) + "MB";
 
         }
 
@@ -94,27 +99,27 @@ namespace nevermore.wpf
 
         private async void button_FileSelect_Click(object sender, RoutedEventArgs e)
         {
-            if (!isTaskCompleted)
+            if (testWindow == null)
             {
-                return;
+                testWindow = new TestWindow();
             }
-            using (testWindow = new TestWindow())
+            OpenFileDialog openFileDialog = new OpenFileDialog
             {
-                isTaskCompleted = false;
-                OpenFileDialog openFileDialog = new OpenFileDialog
-                {
-                    InitialDirectory = @"C:\desktop",
-                    Filter = "所有文件(*.*)|*.*",
-                    Multiselect = true //是否可以多选true=ok/false=no
-                };
-                if (openFileDialog.ShowDialog() == true)
-                {
-                    testWindow.Show();
-                    await testWindow.RunTaskMonitor(openFileDialog.FileNames.ToList()).ContinueWith(_=>
-                    {
-                        isTaskCompleted = true;
-                    });
-                }
+                InitialDirectory = @"C:\desktop",
+                Filter = "所有文件(*.*)|*.*",
+                Multiselect = true, //是否可以多选true=ok/false=no
+                AddExtension = true,
+                Title = "请选择要上传的材料，每次最多可选10个",
+                CheckFileExists = true,
+            };
+            if (openFileDialog.ShowDialog() == true && openFileDialog.FileNames.Length <= 10)
+            {
+                testWindow.Show();
+                testWindow.RunTaskMonitor(openFileDialog.FileNames.ToList());
+            }
+            else
+            {
+                MessageBox.Show("每次至多选择10个文件，请重新选择！");
             }
         }
 

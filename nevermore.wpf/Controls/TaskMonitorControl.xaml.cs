@@ -113,6 +113,7 @@ namespace nevermore.wpf.Controls
             }
         }
         public string FilePath { get; set; }
+        public string FileLength { get; set; }
         public event PropertyChangedEventHandler PropertyChanged;
         public CancellationTokenSource TaskCancellationTokenSource { get; set; } = new CancellationTokenSource();
         protected virtual void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string propertyName = null)
@@ -133,6 +134,7 @@ namespace nevermore.wpf.Controls
         Cancel = 5,
         Hangup = 6,
         OutOfControl = 7,
+        ErrorCanRetry = 8,
     }
     public enum FileTypeEnum
     {

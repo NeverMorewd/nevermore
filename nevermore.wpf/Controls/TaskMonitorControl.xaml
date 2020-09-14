@@ -59,7 +59,7 @@
                         Width="900"
                         Height="18"
                         Panel.ZIndex="0"
-                        Style="{StaticResource TaskProgressBarStyle2}"
+                        Style="{StaticResource TaskProgressBarStyle}"
                         Value="{Binding TaskProgressRatio}" />
                     <Button
                         x:Name="CancelButton"
@@ -142,11 +142,19 @@
                     </DataTrigger>
                     <DataTrigger Binding="{Binding TaskStatus}" Value="{x:Static local:TaskStatusEnum.Error}">
                         <Setter TargetName="CancelButton" Property="Visibility" Value="Collapsed" />
+                        <Setter TargetName="RetryButton" Property="Visibility" Value="Collapsed" />
+                        <Setter TargetName="TaskProgressBar" Property="Visibility" Value="Collapsed" />
+                        <Setter TargetName="TaskProgressBar" Property="Background" Value="#FA8072" />
+                        <Setter TargetName="MessageTextBlock" Property="TextBlock.Foreground" Value="#FA8072" />
+                        <Setter TargetName="ResultControl" Property="Style" Value="{StaticResource Error}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding TaskStatus}" Value="{x:Static local:TaskStatusEnum.ErrorCanRetry}">
+                        <Setter TargetName="CancelButton" Property="Visibility" Value="Collapsed" />
                         <Setter TargetName="RetryButton" Property="Visibility" Value="Visible" />
                         <Setter TargetName="TaskProgressBar" Property="Visibility" Value="Visible" />
                         <Setter TargetName="TaskProgressBar" Property="Background" Value="#FA8072" />
                         <Setter TargetName="MessageTextBlock" Property="TextBlock.Foreground" Value="#FA8072" />
-                        <Setter TargetName="ResultControl" Property="Style" Value="{StaticResource Warning}" />
+                        <Setter TargetName="ResultControl" Property="Style" Value="{StaticResource ErrorCanRetry}" />
                     </DataTrigger>
                     <DataTrigger Binding="{Binding TaskStatus}" Value="{x:Static local:TaskStatusEnum.Cancel}">
                         <Setter TargetName="CancelButton" Property="Visibility" Value="Collapsed" />
