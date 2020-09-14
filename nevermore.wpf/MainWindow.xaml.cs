@@ -97,7 +97,7 @@ namespace nevermore.wpf
             await Pinger.TestPing("172.18.19.101");
         }
 
-        private async void button_FileSelect_Click(object sender, RoutedEventArgs e)
+        private void button_FileSelect_Click(object sender, RoutedEventArgs e)
         {
             if (testWindow == null)
             {
@@ -112,19 +112,21 @@ namespace nevermore.wpf
                 Title = "请选择要上传的材料，每次最多可选10个",
                 CheckFileExists = true,
             };
-            if (openFileDialog.ShowDialog() == true && openFileDialog.FileNames.Length <= 10)
+            if (openFileDialog.ShowDialog() == true)
             {
+                if (openFileDialog.FileNames.Length > 10)
+                {
+                    MessageBox.Show("每次至多选择10个文件，请重新选择！");
+                    return;
+                }
                 testWindow.Show();
                 testWindow.RunTaskMonitor(openFileDialog.FileNames.ToList());
-            }
-            else
-            {
-                MessageBox.Show("每次至多选择10个文件，请重新选择！");
             }
         }
 
         private void button_Monitor_Click(object sender, RoutedEventArgs e)
         {
+            if (testWindow == null) testWindow = new TestWindow(); 
             if (!testWindow.IsActive)
             {
                 testWindow.Show();

@@ -168,7 +168,7 @@ namespace nevermore.wpf
         {
             Queue<TaskItem<bool>> taskQueue = new Queue<TaskItem<bool>>();
         }
-        private async  void OnRetryTask(TaskItem<bool> obj)
+        private  void OnRetryTask(TaskItem<bool> obj)
         {
             //await Task.Run(async () =>
             //{
@@ -182,6 +182,10 @@ namespace nevermore.wpf
             if (!obj.TaskCancellationTokenSource.IsCancellationRequested)
             {
                 obj.TaskCancellationTokenSource.Cancel();
+            }
+            if (!isRun)
+            {
+                TraversalTaskListNew(TaskCollection);
             }
             //obj.TaskStatus = TaskStatusEnum.Hangup;
             //obj.TaskCancellationTokenSource = new CancellationTokenSource();
@@ -266,10 +270,10 @@ namespace nevermore.wpf
                 }
             });
         }
-        private  void TraversalTaskListNew(ObservableCollection<TaskItem<bool>> aTaskCollection)
+        private async  void TraversalTaskListNew(ObservableCollection<TaskItem<bool>> aTaskCollection)
         {
             isRun = true;
-            Task.Run(async () =>
+            await Task.Run(async () =>
             {
                 if (aTaskCollection.Count() == 0)
                 {
@@ -280,12 +284,12 @@ namespace nevermore.wpf
                 TaskCollection = new ObservableCollection<TaskItem<bool>>(aTaskCollection.Where(x => x.TaskStatus != TaskStatusEnum.Completed));
                 if (TaskCollection.FirstOrDefault(x => x.TaskStatus == TaskStatusEnum.InProgress) != null)
                 {
-                    TraversalTaskListNew(TaskCollection);
                     await Task.Delay(100);
+                    TraversalTaskListNew(TaskCollection);
                 }
                 else
                 {
-                    var task = aTaskCollection.FirstOrDefault(t => t.TaskStatus == TaskStatusEnum.Ready || t.TaskStatus == TaskStatusEnum.Hangup);
+                    var task = TaskCollection.FirstOrDefault(t => t.TaskStatus == TaskStatusEnum.Ready || t.TaskStatus == TaskStatusEnum.Hangup);
                     if (task != null)
                     {
                         if (task.TaskStatus == TaskStatusEnum.Hangup)
@@ -293,16 +297,12 @@ namespace nevermore.wpf
                             task.TaskCancellationTokenSource = new CancellationTokenSource();
                         }
                         task.TaskInstance = TaskExcuteHandler.Invoke(task, task.TaskCancellationTokenSource.Token);
-                        await task.TaskInstance.ContinueWith(_ => TraversalTaskListNew(TaskCollection));
                         await Task.Delay(100);
-                    }
-                    else 
-                    {
-                        TraversalTaskListNew(TaskCollection);
-                        await Task.Delay(1000);
+                        await task.TaskInstance.ContinueWith(_ => TraversalTaskListNew(TaskCollection));
                     }
                 }
             });
+            isRun = false;
         }
 
         private List<ObservableCollection<T>> GroupByCount<T>(ObservableCollection<T> aCollection, int aCount)
@@ -353,7 +353,7 @@ namespace nevermore.wpf
                             aTaskItem.Progress.Report(percentComplete);
                             return;
                         }
-                        await Task.Delay(100);
+                        await Task.Delay(10);
                         percentComplete++;
                         if (aTaskItem.Progress != null)
                         {
@@ -361,7 +361,7 @@ namespace nevermore.wpf
                         }
                         if (aTaskItem.TaskProgressRatio >= 95 && aTaskItem.FileType == FileTypeEnum.PDF)
                         {
-                            await Task.Delay(300);
+                            //await Task.Delay(10);
                         }
                         if (percentComplete == 100)
                         {
