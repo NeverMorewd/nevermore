@@ -137,6 +137,10 @@
       <Project>{1f4ca8ee-3f24-4ae8-bb30-2fed20dfd608}</Project>
       <Name>nevermore.mvvm</Name>
     </ProjectReference>
+    <ProjectReference Include="..\nevermore.ui\nevermore.ui.csproj">
+      <Project>{e591c54a-8242-43a4-8426-13e66f871e1f}</Project>
+      <Name>nevermore.ui</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\image\settingbackground.png" />

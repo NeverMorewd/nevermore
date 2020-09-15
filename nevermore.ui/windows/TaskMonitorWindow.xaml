@@ -1,0 +1,32 @@
+﻿<Window x:Class="nevermore.ui.windows.TaskMonitorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:nevermore.ui.windows"
+        xmlns:thcontrols ="clr-namespace:nevermore.ui.wpfcontrols"
+        mc:Ignorable="d"
+        Title="TaskMonitorWindow" Height="600" Width="1000" Background="Transparent" AllowsTransparency="True" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowState="Normal">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary
+                    Source="Pack://application:,,,/nevermore.ui;Component/Resources/StyleDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid>
+        <Image  Stretch="Fill" Source="Pack://application:,,,/nevermore.ui;Component/Resources/image/settingbackground.png" Width="1030" Height="630" Margin="0,0,-12,0" HorizontalAlignment="Center" VerticalAlignment="Center"></Image>
+        <Button  x:Name="CloseButton" Width="30" Height="30" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,40,20,0" Style="{StaticResource CloseButtonStyle}" Click="Close_Click" Panel.ZIndex="2"/>
+        <TextBlock Width="500" Height="50" Text="当前没有进行中的任务" FontSize="40" Foreground="White" TextAlignment="Center" Visibility="{Binding NullTaskNoteVisibility}"/>
+        <Border Background="Transparent" Height="80" MouseMove="Border_MouseMove" VerticalAlignment="Top" Margin="0,15,0,0" Panel.ZIndex="1"></Border>
+        <Line Stroke="#385cdd" StrokeThickness="1" VerticalAlignment="Top" Margin="12,95,0,0" Panel.ZIndex="3" X1="1000"/>
+        <TextBlock Text="上传材料"  VerticalAlignment="Top" FontSize="25" Foreground="White" Margin="20,40,0,0"/>
+        <thcontrols:TaskMonitorControl  x:Name="TaskControl" TaskCollection="{Binding TaskCollection}"  Height="430" VerticalAlignment="Top" Margin="30,100,30,0"/>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center" Grid.ColumnSpan="2" Margin="0,0,0,5">
+            <Button x:Name="Confirm" VerticalAlignment="Bottom" Height="40" Width="120" Margin="5" Content="确定" Click="Confirm_Click" Cursor="Hand" FontSize="20" Style="{StaticResource TaskControlButton}"/>
+            <!--<Button VerticalAlignment="Bottom" Height="40" Width="120" Margin="5" Content="重置" Click="ResetButton_Click"  Cursor="Hand" FontSize="20"  Style="{StaticResource TaskControlButton}"/>
+            <Button VerticalAlignment="Bottom" Height="40" Width="120" Margin="5" Content="清空" Click="CancelButton_Click"  Cursor="Hand" FontSize="20"  Style="{StaticResource TaskControlButton}"/>-->
+        </StackPanel>
+    </Grid>
+</Window>

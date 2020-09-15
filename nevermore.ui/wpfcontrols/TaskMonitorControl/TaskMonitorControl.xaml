@@ -1,15 +1,22 @@
 ﻿<UserControl
-    x:Class="nevermore.wpf.Controls.TaskMonitorControl"
+    x:Class="nevermore.ui.wpfcontrols.TaskMonitorControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-    xmlns:local="clr-namespace:nevermore.wpf.Controls"
+    xmlns:local="clr-namespace:nevermore.ui.wpfcontrols"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">
-    <UserControl.Resources />
+    <UserControl.Resources >
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary
+                    Source="Pack://application:,,,/nevermore.ui;Component/Resources/StyleDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
     <ListBox
         x:Name="TaskListBox"
         ItemsSource="{Binding TaskCollection}"
@@ -68,7 +75,7 @@
                         Width="100"
                         Height="30"
                         Panel.ZIndex="2"
-                        Command="{Binding CancelTaskCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                        Command="{Binding CancelTaskCommand, RelativeSource={RelativeSource  AncestorType = {x:Type local:ITaskMonitorContext}}}"
                         CommandParameter="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ListBoxItem}}"
                         Content="取消"
                         Cursor="Hand"
@@ -81,7 +88,7 @@
                         Width="100"
                         Height="30"
                         Panel.ZIndex="2"
-                        Command="{Binding RetryTaskCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                        Command="{Binding RetryTaskCommand, RelativeSource={RelativeSource  AncestorType = {x:Type local:ITaskMonitorContext}} }"
                         CommandParameter="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ListBoxItem}}"
                         Content="重新上传"
                         Cursor="Hand"

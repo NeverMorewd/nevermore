@@ -76,8 +76,8 @@ namespace nevermore.wpf
         {
             InitializeComponent();
             this.DataContext = this;
-            //TaskExcuteHandler = UploadFile;
-            TaskExcuteHandler = UpLoadFileAsync;
+            TaskExcuteHandler = UploadFile;
+            //TaskExcuteHandler = UpLoadFileAsync;
             RunModelEnum = TaskRunModelEnum.SINGLE;
             MaxTaskQuantity = 3;
             CancelTaskCommand = new NMCommand<TaskItem<bool>>(OnCancelTask);
@@ -163,10 +163,6 @@ namespace nevermore.wpf
                    await Task.WhenAll(currentTask.ToArray()).ContinueWith(_ => TaskEnumerbleExecutorByGroup(tasksSource));
                 }
             }
-        }
-        private async Task TasksExecutorByMaxTask(IEnumerable<TaskItem<bool>> tasksSource, int MaxTask)
-        {
-            Queue<TaskItem<bool>> taskQueue = new Queue<TaskItem<bool>>();
         }
         private  void OnRetryTask(TaskItem<bool> obj)
         {
@@ -275,11 +271,6 @@ namespace nevermore.wpf
             isRun = true;
             await Task.Run(async () =>
             {
-                if (aTaskCollection.Count() == 0)
-                {
-                    NullTaskNoteVisibility = Visibility.Visible;
-                    return;
-                }
                 NullTaskNoteVisibility = Visibility.Collapsed;
                 TaskCollection = new ObservableCollection<TaskItem<bool>>(aTaskCollection.Where(x => x.TaskStatus != TaskStatusEnum.Completed));
                 if (TaskCollection.FirstOrDefault(x => x.TaskStatus == TaskStatusEnum.InProgress) != null)
@@ -300,9 +291,17 @@ namespace nevermore.wpf
                         await Task.Delay(100);
                         await task.TaskInstance.ContinueWith(_ => TraversalTaskListNew(TaskCollection));
                     }
+                    else
+                    {
+                        isRun = false;
+                        if (TaskCollection.Count() == 0)
+                        {
+                            NullTaskNoteVisibility = Visibility.Visible;
+                            return;
+                        }
+                    }
                 }
             });
-            isRun = false;
         }
 
         private List<ObservableCollection<T>> GroupByCount<T>(ObservableCollection<T> aCollection, int aCount)
@@ -556,7 +555,7 @@ namespace nevermore.wpf
             // 时间戳，用做boundary  
             string timeStamp = DateTime.Now.Ticks.ToString("x");
 
-            string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1OTk4NjAwNzAsInVzZXJfbmFtZSI6Ii9wM2Z3OWc3U3JZQTJ5WUZIWUVWZHc9PSIsImp0aSI6ImJhNmExNjM1LWJkOGUtNGQzMS1hM2FlLWQyYTZlNGNhZGYwZCIsImNsaWVudF9pZCI6InByaXZhdGVfY2xpZW50X3dpbmRvd3MiLCJzY29wZSI6WyJzY29wZV9jb3JlIl19.5q8O_dY4HWv0MCweIiiSYoAqkIK3GS4C2T4pcbKDANY";
+            string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MDAxMTI3NjgsInVzZXJfbmFtZSI6IldDc0FSRzIzSm0gMU9FaDhQTG9haHc9PSIsImp0aSI6IjhjYWUzNTQzLWIwZTAtNDlkOS1iMTQ4LTRkYWJmYjgzNmMxYyIsImNsaWVudF9pZCI6InByaXZhdGVfY2xpZW50X3dpbmRvd3MiLCJzY29wZSI6WyJzY29wZV9jb3JlIl19.LhLLc9kMsK2B5oUx5RMpO1tLND0xS-7lt2C3kQ3mVgk";
             HttpWebRequest httpReq = (HttpWebRequest)WebRequest.Create(new Uri(@"http://172.18.19.101:8888/testimony/api/v1/files"));
             httpReq.Method = "POST";
             httpReq.Headers.Add("Authorization", $"Bearer {token}");
@@ -596,14 +595,14 @@ namespace nevermore.wpf
                         //------------------------------[form-data Start]----------------------------
                         reqFormat = startBoundary + "\r\nContent-Type:text/plain;charset=UTF-8" +
                                         "\r\nContent-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}\r\n";
-                        req = string.Format(reqFormat, "reserveId", "6e3d9402d1f74258a0fda668d24bfafb");
+                        req = string.Format(reqFormat, "reserveId", "33ab029654234c2994a67d748c670953");
                         reqBytes1 = Encoding.UTF8.GetBytes(req);
                         //------------------------------[form-data End]----------------------------
 
                         //------------------------------[form-data Start]----------------------------
                         reqFormat = startBoundary + "\r\nContent-Type:text/plain;charset=UTF-8" +
                                         "\r\nContent-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}\r\n";
-                        req = string.Format(reqFormat, "participantId", "bc84a42094ef4794a75026463aa4058a");
+                        req = string.Format(reqFormat, "participantId", "3c45facd57bb471b868c79888f772794");
                         byte[] reqBytes2 = Encoding.UTF8.GetBytes(req);
                         //------------------------------[form-data End]----------------------------
 
@@ -617,7 +616,7 @@ namespace nevermore.wpf
                         //------------------------------[form-data Start]----------------------------
                         reqFormat = startBoundary + "\r\nContent-Type:text/plain;charset=UTF-8" +
                                         "\r\nContent-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}\r\n";
-                        req = string.Format(reqFormat, "ascription", 1);
+                        req = string.Format(reqFormat, "ascription", 2);
                         byte[] reqBytes4 = Encoding.UTF8.GetBytes(req);
                         //------------------------------[form-data End]----------------------------
 
@@ -637,19 +636,19 @@ namespace nevermore.wpf
                         //------------------------------[form-data Start]----------------------------
                         reqFormat = startBoundary + "\r\nContent-Type:text/plain;charset=UTF-8" +
                                         "\r\nContent-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}\r\n";
-                        req = string.Format(reqFormat, "ajbh", "38e0c942b8594b9abdd6c214cfa1062b");
+                        req = string.Format(reqFormat, "ajbh", "3f2f2a593bfe4203a3bcb91d28bbac4e");
                         byte[] reqBytes7 = Encoding.UTF8.GetBytes(req);
                         //------------------------------[form-data End]----------------------------
                         //------------------------------[form-data Start]----------------------------
                         reqFormat = startBoundary + "\r\nContent-Type:text/plain;charset=UTF-8" +
                                         "\r\nContent-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}\r\n";
-                        req = string.Format(reqFormat, "uploader", "王东");
+                        req = string.Format(reqFormat, "uploader", "孙建远");
                         byte[] reqBytes8 = Encoding.UTF8.GetBytes(req);
                         //------------------------------[form-data End]----------------------------
                         //------------------------------[form-data Start]----------------------------
                         reqFormat = startBoundary + "\r\nContent-Type:text/plain;charset=UTF-8" +
                                         "\r\nContent-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}\r\n";
-                        req = string.Format(reqFormat, "jbfy", "");
+                        req = string.Format(reqFormat, "jbfy", "2401");
                         byte[] reqBytes9 = Encoding.UTF8.GetBytes(req);
                         //------------------------------[form-data End]----------------------------                
                         //------------------------------[form-data Start]----------------------------

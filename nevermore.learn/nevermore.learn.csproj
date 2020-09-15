@@ -130,6 +130,13 @@
     <Compile Include="async\AsyncFoundation.cs" />
     <Compile Include="async\Class1.cs" />
     <Compile Include="DBHelper.cs" />
+    <Compile Include="DesignPattern\AbstractFactory\FactoryA.cs" />
+    <Compile Include="DesignPattern\AbstractFactory\FactoryB.cs" />
+    <Compile Include="DesignPattern\AbstractFactory\FactoryBase.cs" />
+    <Compile Include="DesignPattern\AbstractFactory\FactoryFacade.cs" />
+    <Compile Include="DesignPattern\AbstractFactory\ITestInterface.cs" />
+    <Compile Include="DesignPattern\AbstractFactory\TestDoOne.cs" />
+    <Compile Include="DesignPattern\AbstractFactory\TestDoTwo.cs" />
     <Compile Include="DesignPattern\CommandPattern\Broker.cs" />
     <Compile Include="DesignPattern\CommandPattern\BuyStock.cs" />
     <Compile Include="DesignPattern\CommandPattern\IOrder.cs" />
