@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace nevermore.ui.windows
+namespace nevermore.ui.wpfcontrols
 {
     public class TaskMonitorFactoryFacade
     {

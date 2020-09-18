@@ -24,11 +24,11 @@ namespace nevermore.ui.wpfcontrols
     /// </summary>
     public partial class TaskMonitorControl : UserControl
     {
-        public static readonly DependencyProperty TaskCollectionProperty = DependencyProperty.Register("TaskCollection", typeof(ObservableCollection<TaskItemFileUpload>), typeof(TaskMonitorControl), new PropertyMetadata(default(ObservableCollection<TaskItemFileUpload>))); 
+        public static readonly DependencyProperty TaskCollectionProperty = DependencyProperty.Register("TaskCollection", typeof(ObservableCollection<ITaskItemContext>), typeof(TaskMonitorControl), new PropertyMetadata(default(ObservableCollection<ITaskItemContext>))); 
 
-        public ObservableCollection<TaskItemFileUpload> TaskCollection
+        public ObservableCollection<ITaskItemContext> TaskCollection
         {
-            get { return (ObservableCollection<TaskItemFileUpload>)GetValue(TaskCollectionProperty); }
+            get { return (ObservableCollection<ITaskItemContext>)GetValue(TaskCollectionProperty); }
             set { SetValue(TaskCollectionProperty, value); }
         }
         public TaskMonitorControl()

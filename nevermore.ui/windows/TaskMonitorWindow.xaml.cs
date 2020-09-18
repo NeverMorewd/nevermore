@@ -22,8 +22,8 @@ namespace nevermore.ui.windows
     /// </summary>
     public partial class TaskMonitorWindow : Window, ITaskMonitorContext, ITaskMonitorWindowContext
     {
-        ITaskMonitorDataContext taskMonitorDataContext = null;
-        readonly ITaskMonitorContext taskMonitorContext = null;
+        private ITaskMonitorDataContext taskMonitorDataContext = null;
+        private readonly ITaskMonitorContext taskMonitorContext = null;
         public ICommand CancelTaskCommand { get; set; }
         public ICommand RetryTaskCommand { get; set; }
         public FactoryEnum FactoryType { get; set; }
@@ -33,10 +33,7 @@ namespace nevermore.ui.windows
             InitializeComponent();
             FactoryType = FactoryEnum.FileUploadFactory;
             taskMonitorContext = this;
-            taskMonitorDataContext = TaskMonitorFactoryFacade.CreateFactory(taskMonitorContext.FactoryType).GetTaskMonitorDataContext();
-            this.DataContext = taskMonitorDataContext;
-            CancelTaskCommand = new THCommand<TaskItemFileUpload>(taskMonitorDataContext.OnCancelTask);
-            RetryTaskCommand = new THCommand<TaskItemFileUpload>(taskMonitorDataContext.OnRetryTask);
+            Initialize();
         }
         public TaskMonitorWindow(ITaskMonitorContext aTaskMonitorContext)
         {
@@ -53,7 +50,10 @@ namespace nevermore.ui.windows
             CancelTaskCommand = new THCommand<TaskItemFileUpload>(taskMonitorDataContext.OnCancelTask);
             RetryTaskCommand = new THCommand<TaskItemFileUpload>(taskMonitorDataContext.OnRetryTask);
         }
-
+        public void Run(IEnumerable<ITaskItemContext> aTaskItems, Func<ITaskItemContext, object[], Task> aTaskExecuteAction, object[] aTaskActionParams)
+        {
+            TaskMonitorFactoryFacade.CreateFactory(taskMonitorContext.FactoryType).RunTaskMonitor(taskMonitorContext, aTaskItems, aTaskExecuteAction, aTaskActionParams);
+        }
         private void Confirm_Click(object sender, RoutedEventArgs e)
         {
             this.Hide();
@@ -69,11 +69,6 @@ namespace nevermore.ui.windows
 
         public void OnWhenAllTaskComplete(bool isCompleteAll)
         {
-        }
-
-        public void Run(IEnumerable<TaskItemFileUpload> aTaskItems, Func<TaskItemFileUpload, object[],Task> aTaskExecuteAction, object[] aTaskActionParams)
-        {
-            TaskMonitorFactoryFacade.CreateFactory(taskMonitorContext.FactoryType).RunTaskMonitor(taskMonitorContext,aTaskItems, aTaskExecuteAction, aTaskActionParams);
         }
 
         private void Close_Click(object sender, RoutedEventArgs e)

@@ -20,7 +20,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using TaskItemFileUpload = nevermore.ui.windows.TaskItemFileUpload;
 
 namespace nevermore.wpf
 {
@@ -153,7 +152,7 @@ namespace nevermore.wpf
             }
             //new TastMonitorWindow().Show();
         }
-        private async Task UpLoadFileAsync(TaskItemFileUpload aTaskItem,object[] paramArray)
+        private async Task UpLoadFileAsync(ITaskItemContext aTaskItem,object[] paramArray)
         {
             try
             {

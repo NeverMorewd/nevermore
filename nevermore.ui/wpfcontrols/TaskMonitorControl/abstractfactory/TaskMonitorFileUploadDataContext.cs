@@ -13,14 +13,14 @@ using System.Windows.Input;
 
 namespace nevermore.ui.wpfcontrols
 {
-    public  class TaskMonitorDataContext : INotifyPropertyChanged,ITaskMonitorDataContext
+    public  class TaskMonitorFileUploadDataContext : INotifyPropertyChanged,ITaskMonitorDataContext
     {
         public ITaskMonitorContext taskMonitorContext;
         private bool isRunning = false;
-        private Func<TaskItemFileUpload, object[],Task> TaskExcuteHandler;
+        private Func<ITaskItemContext, object[],Task> TaskExcuteHandler;
         private object[] commonParams;
-        private ObservableCollection<TaskItemFileUpload> taskCollection;
-        public ObservableCollection<TaskItemFileUpload> TaskCollection
+        private ObservableCollection<ITaskItemContext> taskCollection;
+        public ObservableCollection<ITaskItemContext> TaskCollection
         {
             get
             {
@@ -47,65 +47,23 @@ namespace nevermore.ui.wpfcontrols
                 OnPropertyChanged();
             }
         }
-
         public Action<ITaskItemContext> OnRetryTask { get { return OnRetryTaskExecute; } }
         public Action<ITaskItemContext> OnCancelTask { get { return OnCancelTaskExecute; } }
-
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-        public TaskMonitorDataContext()
+        public TaskMonitorFileUploadDataContext()
         {
             NullTaskNoteVisibility = Visibility.Visible;
         }
-        //public void RunTaskMonitor(List<string> fileNames, TaskExcuteDelegate  aTaskExcuteDelegate, params object[] optionalParams)
-        //{
-        //    if (TaskCollection == null)
-        //    {
-        //        TaskCollection = new ObservableCollection<TaskItemFileUpload>();
-        //    }
-        //    TaskExcuteHandler = aTaskExcuteDelegate;
-        //    fileNames.ForEach(x =>
-        //    {
-        //        TaskItemFileUpload t = new TaskItemFileUpload
-        //        {
-        //            TaskId = new Random().Next(),
-        //            TaskName = System.IO.Path.GetFileName(x),
-        //            TaskProgressRatio = 0,
-        //            FilePath = x,
-        //            TaskStatus = TaskStatusEnum.Ready,
-        //            TaskDelegateParams = optionalParams,
-        //        };
-        //        if (new FileInfo(x).Length > 104857600)
-        //        {
-        //            t.TaskStatus = TaskStatusEnum.Error;
-        //            t.TaskMessage = "文件大小超过100M，暂不支持";
-        //        }
-        //        else if (new FileInfo(x).Length >= 1048576)
-        //        {
-        //            t.FileLength = System.Math.Ceiling(new FileInfo(x).Length / 1048576.0) + "MB";
-        //        }
-        //        else if (new FileInfo(x).Length == 0)
-        //        {
-        //            t.TaskStatus = TaskStatusEnum.Error;
-        //            t.TaskMessage = "禁止上传0KB文件";
-        //        }
-        //        else
-        //        {
-        //            t.FileLength = System.Math.Ceiling(new FileInfo(x).Length / 1024.0) + "KB";
-        //        }
-        //        TaskCollection.Add(t);
-        //    });
-        //    RunTaskCollection();
-        //}
-        public void RunTaskMonitor(ITaskMonitorContext aTaskMonitorContext,IEnumerable<TaskItemFileUpload> aTaskItem, Func<TaskItemFileUpload, object[], Task> aTaskExcuteDelegate, params object[] optionalParams)
+        public void RunTaskMonitor(ITaskMonitorContext aTaskMonitorContext,IEnumerable<ITaskItemContext> aTaskItem, Func<ITaskItemContext, object[], Task> aTaskExcuteDelegate, params object[] optionalParams)
         {
             taskMonitorContext = aTaskMonitorContext;
             if (TaskCollection == null)
             {
-                TaskCollection = new ObservableCollection<TaskItemFileUpload>();
+                TaskCollection = new ObservableCollection<ITaskItemContext>();
             }
             TaskExcuteHandler = aTaskExcuteDelegate;
             aTaskItem.ToList().ForEach(x =>
@@ -168,7 +126,8 @@ namespace nevermore.ui.wpfcontrols
             NullTaskNoteVisibility = Visibility.Collapsed;
             await Task.Run(async () =>
             {
-                TaskCollection = new ObservableCollection<TaskItemFileUpload>(TaskCollection.Where(x => x.TaskStatus != TaskStatusEnum.Completed));
+                await Task.Delay(500);
+                TaskCollection = new ObservableCollection<ITaskItemContext>(TaskCollection.Where(x => x.TaskStatus != TaskStatusEnum.Completed));
                 if (TaskCollection.FirstOrDefault(x => x.TaskStatus == TaskStatusEnum.InProgress) != null)
                 {
                     await Task.Delay(100);
@@ -192,8 +151,8 @@ namespace nevermore.ui.wpfcontrols
                         isRunning = false;
                         if (TaskCollection.Count() == 0)
                         {
-                            taskMonitorContext?.OnWhenAllTaskComplete(true);
                             NullTaskNoteVisibility = Visibility.Visible;
+                            taskMonitorContext?.OnWhenAllTaskComplete(true);
                         }
                     }
                 }

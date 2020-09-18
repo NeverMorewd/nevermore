@@ -48,24 +48,29 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="windows\abstractfactory\ITaskMonitorDataContext.cs" />
-    <Compile Include="windows\abstractfactory\TaskItemFileDownload.cs" />
-    <Compile Include="windows\abstractfactory\ITaskItemContext.cs" />
-    <Compile Include="windows\abstractfactory\TaskItemFileUpload.cs" />
-    <Compile Include="windows\abstractfactory\TaskMonitorBaseFactory.cs" />
-    <Compile Include="windows\abstractfactory\TaskMonitorFactoryFacade.cs" />
-    <Compile Include="windows\abstractfactory\TaskMonitorFileDownloadFactory.cs" />
-    <Compile Include="windows\abstractfactory\TaskMonitorFileUploadFactory.cs" />
+    <Compile Include="wpfcontrols\TaskMonitorControl\abstractfactory\TaskMonitorFileDownloadDataContext.cs" />
+    <Compile Include="wpfcontrols\TaskMonitorControl\abstractfactory\ITaskMonitorDataContext.cs" />
+    <Compile Include="wpfcontrols\TaskMonitorControl\abstractfactory\TaskItemFileDownload.cs" />
+    <Compile Include="wpfcontrols\TaskMonitorControl\abstractfactory\ITaskItemContext.cs" />
+    <Compile Include="wpfcontrols\TaskMonitorControl\abstractfactory\TaskItemFileUpload.cs" />
+    <Compile Include="wpfcontrols\TaskMonitorControl\abstractfactory\TaskMonitorBaseFactory.cs" />
+    <Compile Include="wpfcontrols\TaskMonitorControl\abstractfactory\TaskMonitorFactoryFacade.cs" />
+    <Compile Include="wpfcontrols\TaskMonitorControl\abstractfactory\TaskMonitorFileDownloadFactory.cs" />
+    <Compile Include="wpfcontrols\TaskMonitorControl\abstractfactory\TaskMonitorFileUploadFactory.cs" />
     <Compile Include="windows\TaskMonitorWindow.xaml.cs">
       <DependentUpon>TaskMonitorWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="windows\abstractfactory\ITaskMonitorContext.cs" />
+    <Compile Include="wpfcontrols\TaskMonitorControl\abstractfactory\ITaskMonitorContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="wpfcontrols\TaskMonitorControl\TaskMonitorControl.xaml.cs">
       <DependentUpon>TaskMonitorControl.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Resources\ChinaMapWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Resources\StyleDictionary.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -83,7 +88,7 @@
     <Resource Include="Resources\image\settingbackground.png" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="windows\abstractfactory\TaskMonitorDataContext.cs" />
+    <Compile Include="wpfcontrols\TaskMonitorControl\abstractfactory\TaskMonitorFileUploadDataContext.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
