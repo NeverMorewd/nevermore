@@ -4,8 +4,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:nevermore.wpf"
-        xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2" x:Class="nevermore.wpf.MainWindow"
-        mc:Ignorable="d"
+        xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2"
+        x:Class="nevermore.wpf.MainWindow"
+        xmlns:controls ="nevermore.wpf.Controls" xmlns:controls1="clr-namespace:nevermore.wpf.Controls"
+    mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800" WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <Style x:Key="FocusVisual">
@@ -271,7 +273,7 @@
         <Button x:Name="button_FileSelect" Content="选择文件" HorizontalAlignment="Left" Margin="293,171,0,0" VerticalAlignment="Top" Width="173" Click="button_FileSelect_Click"/>
         <Button x:Name="button_Monitor" Content="上传进度" HorizontalAlignment="Left" Margin="293,202,0,0" VerticalAlignment="Top" Width="173" Click="button_Monitor_Click"/>
         <Button x:Name="button_Copy1" Content="Button" HorizontalAlignment="Left" Margin="293,135,0,0" VerticalAlignment="Top" Width="173" Click="button_Copy1_Click"/>
-        <Ellipse Height="50" Width="50" Margin="144,171,598,198" StrokeThickness="1"  Stroke="Blue">
+        <Ellipse Height="50" Width="50" Margin="10,102,732,267" StrokeThickness="1"  Stroke="Blue">
             <Ellipse.Fill>
                 <RadialGradientBrush GradientOrigin="0.5,0.5">
                     <GradientStop Color="Snow" Offset="0.5"/>
@@ -280,5 +282,9 @@
                 </RadialGradientBrush>
             </Ellipse.Fill>
         </Ellipse>
+        <ComboBox x:Name="comboBox1" HorizontalAlignment="Left" Margin="85,100,0,0" VerticalAlignment="Top" Width="195" Height="21" IsEditable="True" IsTextSearchEnabled="False" KeyUp="comboBox_KeyUp"/>
+        <controls1:PageControl Height="300" Width="300" HorizontalAlignment="Left" Margin="85,200,0,0" VerticalAlignment="Top" Panel.ZIndex="2">
+            <TextBlock Text="jajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajajjajaj"/>
+        </controls1:PageControl>
     </Grid>
 </Window>

@@ -7,6 +7,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/nevermore.wpf;component/Resources/StyleDictionary.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/nevermore.ui;Component/Resources/ChinaMapWindow.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

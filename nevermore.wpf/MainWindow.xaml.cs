@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using nevermore.common;
+using nevermore.learn.IOC;
 using nevermore.ui.windows;
 using nevermore.ui.wpfcontrols;
 using nevermore.wpf.Windows;
@@ -34,6 +35,7 @@ namespace nevermore.wpf
         private bool isTaskCompleted = true;
         TestWindow testWindow;
         private Window taskMonitorWindow;
+        List<string> list = new List<string> {"1212","awwqeqwe","哈哈哈", "aa", "bb", "abc", "csd" };
         public MainWindow()
         {
             InitializeComponent();
@@ -86,11 +88,6 @@ namespace nevermore.wpf
 
         }
 
-        private async void button_Copy_Click(object sender, RoutedEventArgs e)
-        {
-            
-        }
-
         private void button_Click_1(object sender, RoutedEventArgs e)
         {
             new SecurityTestWindow().Show();
@@ -98,7 +95,8 @@ namespace nevermore.wpf
 
         private async void button_Copy1_Click(object sender, RoutedEventArgs e)
         {
-            await Pinger.TestPing("172.18.19.101");
+            //await Pinger.TestPing("172.18.19.101");
+            RunLearn.Run();
         }
 
         private void button_FileSelect_Click(object sender, RoutedEventArgs e)
@@ -199,6 +197,14 @@ namespace nevermore.wpf
             }
             return;
 
+        }
+
+        private void comboBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            List<string> mylist = new List<string>();
+            mylist = list.FindAll(delegate (string s) { return s.Contains(comboBox1.Text.Trim()); });
+            comboBox1.ItemsSource = mylist;
+            comboBox1.IsDropDownOpen = true;
         }
     }
 }

@@ -1,0 +1,78 @@
+﻿<UserControl x:Class="nevermore.wpf.Controls.PageControl"                                       
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"        
+             mc:Ignorable="d" 
+             d:DesignHeight="28" d:DesignWidth="450">
+    <Grid>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+            <!--上一页-->
+            <Button x:Name="btnPrePage" Height="28" Background="Transparent" Foreground="#fff" Click="btnPrePage_Click" CommandParameter="{Binding}" VerticalAlignment="Center" Visibility="{Binding NumVisible}">
+                <Button.Template>
+                    <ControlTemplate>
+                        <Border x:Name="border" Background="Transparent" CornerRadius="2">
+                            <TextBlock x:Name="txt" Margin="10 0 10 1" Foreground="{TemplateBinding Foreground}" FontSize="{Binding FontSize}" FontWeight="Bold" Text="&lt;&lt;" VerticalAlignment="Center"></TextBlock>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter TargetName="border" Property="Background" Value="#6633ccee"></Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+            <!--页码-->
+            <ItemsControl x:Name="itemsControl">
+                <ItemsControl.Template>
+                    <ControlTemplate>
+                        <ItemsPresenter></ItemsPresenter>
+                    </ControlTemplate>
+                </ItemsControl.Template>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"></StackPanel>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Button x:Name="btnNum" Height="28" Background="Transparent" Click="btnNum_Click" CommandParameter="{Binding}" VerticalAlignment="Center" Visibility="{Binding NumVisible}">
+                                <Button.Template>
+                                    <ControlTemplate>
+                                        <Border x:Name="border" Background="Transparent" CornerRadius="2" SnapsToDevicePixels="True">
+                                            <TextBlock x:Name="txt" Margin="10 0 10 0" Foreground="{Binding CurrentPageColor}" FontSize="{Binding FontSize}" FontWeight="Bold" Text="{Binding Page}" VerticalAlignment="Center" ></TextBlock>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="true">
+                                                <Setter TargetName="border" Property="Background" Value="#6633ccee"></Setter>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+                            <Border Height="28" Visibility="{Binding OmitVisible}">
+                                <TextBlock x:Name="txt" Margin="10 0 10 3" Foreground="#fff" FontSize="{Binding FontSize}" Text="…" VerticalAlignment="Center" ></TextBlock>
+                            </Border>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <!--下一页-->
+            <Button x:Name="btnNextPage" Height="28" Background="Transparent" Foreground="#fff" Click="btnNextPage_Click" CommandParameter="{Binding}" VerticalAlignment="Center" Visibility="{Binding NumVisible}">
+                <Button.Template>
+                    <ControlTemplate>
+                        <Border x:Name="border" Background="Transparent" CornerRadius="2">
+                            <TextBlock x:Name="txt" Margin="10 0 10 1" Foreground="{TemplateBinding Foreground}" FontSize="{Binding FontSize}" FontWeight="Bold" Text=">>" VerticalAlignment="Center"></TextBlock>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter TargetName="border" Property="Background" Value="#6633ccee"></Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+        </StackPanel>
+    </Grid>
+</UserControl>

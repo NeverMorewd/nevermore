@@ -38,6 +38,7 @@
     <Reference Include="PresentationFramework.Aero2" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -56,13 +57,23 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\PageControl.xaml.cs">
+      <DependentUpon>PageControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Interface\ITaskMonitorContext.cs" />
+    <Compile Include="Windows\MapWindow.xaml.cs">
+      <DependentUpon>MapWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\TestWindow.xaml.cs">
       <DependentUpon>TestWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\SecurityTestWindow.xaml.cs">
       <DependentUpon>SecurityTestWindow.xaml</DependentUpon>
     </Compile>
+    <Page Include="Controls\PageControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Controls\TaskMonitorControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -83,6 +94,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="Resources\StyleDictionary.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\MapWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -132,6 +147,10 @@
     <ProjectReference Include="..\nevermore.core\nevermore.core.csproj">
       <Project>{5A3BDA69-93DA-4290-8B3F-6CECA9F4FA4C}</Project>
       <Name>nevermore.core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\nevermore.learn\nevermore.learn.csproj">
+      <Project>{15B553CD-7305-408E-A532-D4650DA69564}</Project>
+      <Name>nevermore.learn</Name>
     </ProjectReference>
     <ProjectReference Include="..\nevermore.mvvm\nevermore.mvvm.csproj">
       <Project>{1f4ca8ee-3f24-4ae8-bb30-2fed20dfd608}</Project>
